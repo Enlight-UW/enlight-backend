@@ -1,8 +1,10 @@
 /* 
  * File:   main.cpp
- * Author: Alex
+ * Author: Alex Kersten
  *
  * Created on November 15, 2012, 10:47 PM
+ * 
+ * 
  */
 
 #include <cstdlib>
