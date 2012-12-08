@@ -34,7 +34,10 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/main.o
+	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/_ext/618568943/GlobalStateTracker.o \
+	${OBJECTDIR}/_ext/618568943/UDPStack.o \
+	${OBJECTDIR}/_ext/618568943/UnixUDPStack.o
 
 
 # C Compiler Flags
@@ -65,6 +68,21 @@ ${OBJECTDIR}/main.o: nbproject/Makefile-${CND_CONF}.mk main.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
+
+${OBJECTDIR}/_ext/618568943/GlobalStateTracker.o: nbproject/Makefile-${CND_CONF}.mk /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/GlobalStateTracker.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/618568943
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/618568943/GlobalStateTracker.o /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/GlobalStateTracker.cpp
+
+${OBJECTDIR}/_ext/618568943/UDPStack.o: nbproject/Makefile-${CND_CONF}.mk /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/UDPStack.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/618568943
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/618568943/UDPStack.o /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/UDPStack.cpp
+
+${OBJECTDIR}/_ext/618568943/UnixUDPStack.o: nbproject/Makefile-${CND_CONF}.mk /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/UnixUDPStack.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/618568943
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/618568943/UnixUDPStack.o /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/UnixUDPStack.cpp
 
 # Subprojects
 .build-subprojects:

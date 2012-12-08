@@ -4,6 +4,9 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>C:/Users/Alex/Documents/GitHub/enlight-backend/GlobalStateTracker.h</itemPath>
+      <itemPath>C:/Users/Alex/Documents/GitHub/enlight-backend/UDPStack.h</itemPath>
+      <itemPath>C:/Users/Alex/Documents/GitHub/enlight-backend/UnixUDPStack.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -12,6 +15,9 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>C:/Users/Alex/Documents/GitHub/enlight-backend/GlobalStateTracker.cpp</itemPath>
+      <itemPath>C:/Users/Alex/Documents/GitHub/enlight-backend/UDPStack.cpp</itemPath>
+      <itemPath>C:/Users/Alex/Documents/GitHub/enlight-backend/UnixUDPStack.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -34,6 +40,9 @@
         <compilerSet>default</compilerSet>
       </toolsSet>
       <compileType>
+        <ccTool>
+          <warningLevel>2</warningLevel>
+        </ccTool>
       </compileType>
     </conf>
     <conf name="Release" type="1">
