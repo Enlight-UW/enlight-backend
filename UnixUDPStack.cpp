@@ -57,17 +57,23 @@ void UnixUDPStack::startListening() {
         return;
     }
 
-    cout << "[UnixUDPStack] Bound, listening!\n";
+    cout << "[UnixUDPStack] Bound, listening!\n\n";
 
     //We're currently bound to the port. Receive incoming information! For now
     //just print it to standard out.
     for (;;) {
-        if (recvfrom(sock, buffer, BUFLEN, 0, (sockaddr*) &siOther, &siOtherLen) == -1) {
+        //Clear the buffer before the next read.
+        memset(&buffer, 0, BUFLEN);
+
+        if (recvfrom(sock, buffer, BUFLEN, 0,
+                (sockaddr*) & siOther, &siOtherLen) == -1) {
+
             cout << "[UnixUDPStack] Receive failure\n";
             return;
         }
 
-        printf("[%s:%d] %s\n", inet_ntoa(siOther.sin_addr), ntohs(siOther.sin_port), buffer);
+        printf("[%s:%d] %s\n",
+                inet_ntoa(siOther.sin_addr), ntohs(siOther.sin_port), buffer);
     }
 
     close(sock);
