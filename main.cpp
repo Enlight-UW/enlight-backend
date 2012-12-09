@@ -36,7 +36,8 @@ int main(int argc, char** argv) {
     cout << "Setting up default global state...\n";
 
     if (WINDOWS) {
-
+        cout << "No Windows implementation yet, sorry!";
+        return 1;
     } else {
         cout << "Initializing Unix UDP stack...\n";
         webfrontStack = new UnixUDPStack(LISTEN_PORT);
@@ -44,13 +45,14 @@ int main(int argc, char** argv) {
     }
 
 
-    cout << "Attempt block on " << webfrontStack->getPort() << "...\n";
+    cout << "Attempt block on " << webfrontStack->getPort() << "...\n\n";
     webfrontStack->startListening();
     
     //If we make it here, we've returned from startListening and this must
     //be an error.
     cout << "Early return from startListening()!\n";
 
+    delete webfrontStack;
     return 0;
 }
 

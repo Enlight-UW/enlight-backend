@@ -16,7 +16,7 @@ public:
     virtual ~UnixUDPStack();
     virtual void startListening();
 private:
-
+    int sock;
 };
 
 #endif	/* UNIXUDPSTACK_H */
