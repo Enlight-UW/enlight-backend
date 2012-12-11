@@ -54,9 +54,8 @@ UDPStack* webfrontStack;
  * and processing of UDP packets, so things that would go here include code that
  * maintains or changes the current pattern being sent to the fountain, as well
  * as updating the global state and sending it to the Webfront. We'll do this
- * every delay period - doesn't matter, it's UDP - and PHP will surely see it
- * when the user invokes a request that requires the state to be updated by
- * the client.
+ * every delay period if it was requested (don't want stale states to pile up in
+ * the hardware buffer) and PHP will see it a tenth of a second or so later.
  */
 void globalProcess() {
 
