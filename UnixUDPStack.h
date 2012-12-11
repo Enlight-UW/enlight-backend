@@ -10,13 +10,27 @@
 
 #include "UDPStack.h"
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstdio>
+#include <iostream>
+
 class UnixUDPStack : public UDPStack {
 public:
-    UnixUDPStack(int port) : UDPStack(port){};
+
+    UnixUDPStack(int port) : UDPStack(port) {
+        pseudoconstruct();
+    };
     virtual ~UnixUDPStack();
-    virtual void startListening();
+    virtual void checkAndHandlePackets();
 private:
     int sock;
+    struct sockaddr_in siMe, siOther;
+    void pseudoconstruct();
 };
 
 #endif	/* UNIXUDPSTACK_H */

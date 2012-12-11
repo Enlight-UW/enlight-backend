@@ -16,30 +16,26 @@
  * strict about pointer types)
  */
 
-
 #include "UnixUDPStack.h"
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <cstdio>
-#include <iostream>
-
-
 #define BUFLEN 1024
+
 
 using namespace std;
 
 UnixUDPStack::~UnixUDPStack() {
+    //Don't think we created any objects here!
+
+    //Just close the socket.
+    close(sock);
 }
 
-void UnixUDPStack::startListening() {
-    char buffer[BUFLEN];
-    struct sockaddr_in siMe, siOther;
-    int siOtherLen = sizeof (siOther);
-
+/**
+ * This is called by the initialization list in the header file - it's basically
+ * the constructor, because I didn't want all this nasty socket code to take up
+ * space in the header (which already had an init list).
+ */
+void UnixUDPStack::pseudoconstruct() {
     if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         //Failed to create socket...
         cout << "[UnixUDPStack] Socket initialize failed\n";
@@ -57,24 +53,53 @@ void UnixUDPStack::startListening() {
         return;
     }
 
-    cout << "[UnixUDPStack] Bound, listening!\n\n";
+
+    cout << "[UnixUDPStack] Entering non-blocking mode...\n";
+
+    //Magic to make the socket not block when checking for packets...
+    int flags = fcntl(sock, F_GETFL, 0);
+    if (flags == -1) {
+        cout << "[UnixUDPStack] Error: Can't prevent blocking!\n";
+        exit(1);
+    }
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    //End of magic
+
+    cout << "[UnixUDPStack] Bound, ready to listen!\n\n";
+}
+
+/**
+ * Called by our "scheduler" to check for packets. Needs to peek in order to not
+ * block, as there are other important things to do if packets are not available
+ * like continue sending information to the fountain.
+ * 
+ * I'm hesitant to use threads because C++11 isn't supported in the wonderful
+ * version (3.4.4) of GCC that I'm using and I don't feel like upgrading, or
+ * using any more libraries than I have to. Besides, it's easier this way.
+ */
+void UnixUDPStack::checkAndHandlePackets() {
+    char buffer[BUFLEN];
+    int bytesRead = 0;
+    int siOtherLen = sizeof (siOther);
 
     //We're currently bound to the port. Receive incoming information! For now
     //just print it to standard out.
-    for (;;) {
-        //Clear the buffer before the next read.
-        memset(&buffer, 0, BUFLEN);
 
-        if (recvfrom(sock, buffer, BUFLEN, 0,
-                (sockaddr*) & siOther, &siOtherLen) == -1) {
+    //Clear the buffer before the next read.
+    memset(&buffer, 0, BUFLEN);
 
-            cout << "[UnixUDPStack] Receive failure\n";
-            return;
-        }
-
-        printf("[%s:%d] %s\n",
-                inet_ntoa(siOther.sin_addr), ntohs(siOther.sin_port), buffer);
+    //No buffer overflow - recvfrom is smart enough to prevent that.
+    if ((bytesRead = recvfrom(sock, buffer, BUFLEN, 0,
+            (sockaddr*) & siOther, &siOtherLen)) == -1) {
+        
+        //No input yet, and because we're non-blocking, return right away to
+        //allow for other processing to take place.
+        return;
     }
 
-    close(sock);
+    //Terminate if it was too long.
+    memset(&(buffer[BUFLEN - 1]), '\0', 1);
+
+    printf("[%s:%d] %s\n",
+            inet_ntoa(siOther.sin_addr), ntohs(siOther.sin_port), buffer);
 }
