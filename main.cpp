@@ -73,38 +73,74 @@ void globalProcess() {
 void handleServiceRequest(char* requestString) {
     //TODO: Let's ignore the first 64 bytes (service key) for now.
 
-    //Parse out the opcode, at bytes 64-68 in the char array...
-    //Probably better ways to do this...
-    union opcode {
-        int full;
-        char left, one, two, right;
-    };
-    
-    opcode op;
-    op.left = requestString[64];
-    op.one = requestString[65];
-    op.two = requestString[66];
-    op.right = requestString[67];
-    
-    switch (op.full) {
+    //Parse out the opcode, at bytes 64-68 in the char array... This is under
+    //the assumption that the bytes arriving in requestString are big-endian and
+    //we're running on a little-endian platform, as well as assuming that chars
+    //are 8 bits wide and integers are 32-bits. These assumptions are both
+    //validated in the first few lines of main() so we should be fine doing
+    //it this way, although there are nicer ways. This is short and fast (zing!)
+
+    union opcodeDecoder {
+        int value;
+        char bytes[4];
+    } opcode;
+
+    //Little endian platform, big endian encoding - switch the ordering around
+    opcode.bytes[3] = requestString[64];
+    opcode.bytes[2] = requestString[65];
+    opcode.bytes[1] = requestString[66];
+    opcode.bytes[0] = requestString[67];
+
+    switch (opcode.value) {
         case 1:
             //Stop the server
-            
+
             break;
         case 2:
             //Echo request
-            
+
             break;
         case 3:
             //Update status request
             break;
-            
+
     }
-            
+
 
 }
 
 int main(int argc, char** argv) {
+    cout << "Running sanity check...\n\n";
+
+    //Check size of primative types so we can do some quick and dirty casting
+    //in other parts of the code.
+    if (sizeof (int) != 4 * sizeof (char)) {
+        cout << "Primitive type size assumption was incorrect - our ghetto cast"
+                << " won\'t work. Please run on a platform where ints are 32 "
+                << "bits and chars are 8.";
+
+        return sizeof (int) + sizeof (char);
+    }
+
+    //Check to see if this is a little endian platform...
+
+    union sizeCheck {
+        int readOut;
+        char bytes[4];
+    } check;
+
+    check.bytes[0] = 1;
+
+    if (check.readOut != 1) {
+        cout << "This system is not little-endian. Not sure where you found it "
+                << "but please put it out of its misery and assimilate to the "
+                << "Intel master race... We've got cookies...\n";
+
+        //But really, little endian is better.
+        return 16777216;
+    }
+
+
     cout << "Enlight Fountain Backend\n";
     cout << "Build " << BUILD << "\n";
     cout << __DATE__ << "\n\n";
