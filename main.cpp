@@ -78,7 +78,7 @@ void handleServiceRequest(char* requestString) {
     //we're running on a little-endian platform, as well as assuming that chars
     //are 8 bits wide and integers are 32-bits. These assumptions are both
     //validated in the first few lines of main() so we should be fine doing
-    //it this way, although there are nicer ways. This is short and fast (zing!)
+    //it this way, although there are nicer ways.
 
     union opcodeDecoder {
         int value;
