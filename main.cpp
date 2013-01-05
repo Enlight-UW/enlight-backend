@@ -130,6 +130,9 @@ int main(int argc, char** argv) {
     } check;
 
     check.bytes[0] = 1;
+    check.bytes[1] = 0;
+    check.bytes[2] = 0;
+    check.bytes[3] = 0;
 
     if (check.readOut != 1) {
         cout << "This system is not little-endian. Not sure where you found it "
