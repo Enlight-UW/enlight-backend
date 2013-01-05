@@ -77,7 +77,7 @@ void UnixUDPStack::pseudoconstruct() {
  * version (3.4.4) of GCC that I'm using and I don't feel like upgrading, or
  * using any more libraries than I have to. Besides, it's easier this way.
  */
-void UnixUDPStack::checkAndHandlePackets() {
+void UnixUDPStack::checkAndHandlePackets(void (*handler)(char*)) {
     char buffer[BUFLEN];
     int bytesRead = 0;
     int siOtherLen = sizeof (siOther);
@@ -91,7 +91,7 @@ void UnixUDPStack::checkAndHandlePackets() {
     //No buffer overflow - recvfrom is smart enough to prevent that.
     if ((bytesRead = recvfrom(sock, buffer, BUFLEN, 0,
             (sockaddr*) & siOther, &siOtherLen)) == -1) {
-        
+
         //No input yet, and because we're non-blocking, return right away to
         //allow for other processing to take place.
         return;
@@ -102,4 +102,9 @@ void UnixUDPStack::checkAndHandlePackets() {
 
     printf("[%s:%d] %s\n",
             inet_ntoa(siOther.sin_addr), ntohs(siOther.sin_port), buffer);
+
+    //Handle this input - yes, buffer's got function scope but technically this
+    //is still inside the function, so we don't need to worry about undefined
+    //behavior.
+    handler(buffer);
 }

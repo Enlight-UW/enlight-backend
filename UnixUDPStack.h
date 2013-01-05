@@ -26,7 +26,7 @@ public:
         pseudoconstruct();
     };
     virtual ~UnixUDPStack();
-    virtual void checkAndHandlePackets();
+    virtual void checkAndHandlePackets(void (*handler)(char*));
 private:
     int sock;
     struct sockaddr_in siMe, siOther;

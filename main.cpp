@@ -61,6 +61,49 @@ void globalProcess() {
 
 }
 
+/**
+ * Callback from our UDPStack. This takes the request string and:
+ *  - Verifies the SMK
+ *  - Switches to the correct routine based on the opcode
+ *  - Handles the request
+ *  - Sends back a response if appropriate
+ * 
+ * @param requestString The blob from the Webfront.
+ */
+void handleServiceRequest(char* requestString) {
+    //TODO: Let's ignore the first 64 bytes (service key) for now.
+
+    //Parse out the opcode, at bytes 64-68 in the char array...
+    //Probably better ways to do this...
+    union opcode {
+        int full;
+        char left, one, two, right;
+    };
+    
+    opcode op;
+    op.left = requestString[64];
+    op.one = requestString[65];
+    op.two = requestString[66];
+    op.right = requestString[67];
+    
+    switch (op.full) {
+        case 1:
+            //Stop the server
+            
+            break;
+        case 2:
+            //Echo request
+            
+            break;
+        case 3:
+            //Update status request
+            break;
+            
+    }
+            
+
+}
+
 int main(int argc, char** argv) {
     cout << "Enlight Fountain Backend\n";
     cout << "Build " << BUILD << "\n";
@@ -96,7 +139,7 @@ int main(int argc, char** argv) {
 
     for (;;) {
         //Forever, check for a single packet from the Webfront, process it,
-        webfrontStack->checkAndHandlePackets();
+        webfrontStack->checkAndHandlePackets(&handleServiceRequest);
 
         //Do global processing.
         globalProcess();
@@ -109,7 +152,7 @@ int main(int argc, char** argv) {
         usleep(1000 * DELAY);
 #endif
     }
-    
+
     //If we make it here, it's done.
     cout << "Leaving main.\n";
 

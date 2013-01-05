@@ -19,7 +19,7 @@ class UDPStack {
 public:
     UDPStack(int port);
     virtual ~UDPStack() = 0;
-    virtual void checkAndHandlePackets() = 0;
+    virtual void checkAndHandlePackets(void (*handler)(char*)) = 0;
     int getPort() const;
 private:
     int port;
