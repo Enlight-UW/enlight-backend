@@ -175,7 +175,8 @@ int main(int argc, char** argv) {
     cout << "Entering main loop, listening on "
             << webfrontStack->getPort() << "...\n\n";
 
-
+    
+    //TODO: Add sever shutdown capability based on received packet
     for (;;) {
         //Forever, check for a single packet from the Webfront, process it,
         webfrontStack->checkAndHandlePackets(&handleServiceRequest);
@@ -192,8 +193,6 @@ int main(int argc, char** argv) {
 #endif
     }
 
-    //If we make it here, it's done.
-    cout << "Leaving main.\n";
 
     delete webfrontStack;
     return 0;
