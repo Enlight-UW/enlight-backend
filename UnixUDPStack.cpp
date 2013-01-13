@@ -60,7 +60,7 @@ void UnixUDPStack::pseudoconstruct() {
     int flags = fcntl(sock, F_GETFL, 0);
     if (flags == -1) {
         cout << "[UnixUDPStack] Error: Can't prevent blocking!\n";
-        exit(1);
+        exit(99);
     }
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
     //End of magic
