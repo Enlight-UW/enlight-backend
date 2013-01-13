@@ -119,7 +119,7 @@ void handleServiceRequest(char const* requestString) {
         case 4:
             //STDEcho request - send the payload to standard out.
 
-            char* ptr = requestString[68];
+            char const* ptr = requestString[68];
             //Don't worry, there's a null terminator on the end of that - check
             //UnixUDPStack.cpp if you're unsure.
 
