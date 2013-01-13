@@ -27,6 +27,7 @@ public:
     };
     virtual ~UnixUDPStack();
     virtual void checkAndHandlePackets(void (*handler)(char const*));
+    virtual void sendData(char const*);
 private:
     int sock;
     struct sockaddr_in siMe, siOther;

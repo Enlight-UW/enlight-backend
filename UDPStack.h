@@ -15,11 +15,14 @@
 #ifndef UDPSTACK_H
 #define	UDPSTACK_H
 
+#define WEBFRONT_IP 127.0.0.1
+
 class UDPStack {
 public:
     UDPStack(int port);
     virtual ~UDPStack() = 0;
     virtual void checkAndHandlePackets(void (*handler)(char const*)) = 0;
+    virtual void sendData(char const*);
     int getPort() const;
 private:
     int port;

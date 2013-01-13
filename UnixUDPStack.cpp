@@ -113,3 +113,7 @@ void UnixUDPStack::checkAndHandlePackets(void (*handler)(char const*)) {
     //behavior.
     handler(buffer);
 }
+
+void UnixUDPStack::sendData(char const* payload) {
+
+}
