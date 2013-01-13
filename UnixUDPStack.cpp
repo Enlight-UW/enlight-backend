@@ -100,8 +100,13 @@ void UnixUDPStack::checkAndHandlePackets(void (*handler)(char const*)) {
     //Terminate if it was too long.
     memset(&(buffer[BUFLEN - 1]), '\0', 1);
 
-    printf("[%s:%d] %s\n",
-            inet_ntoa(siOther.sin_addr), ntohs(siOther.sin_port), buffer);
+    //Note - if you have any null bytes in your opcode (like most opcodes we've
+    //got) then this will likely stop printing out the buffer after the SMK,
+    //which is fairly useless (it'll only print the SMK, because it hits a \0).
+    //Keeping it around though because it's a good reference for getting the
+    //remote address.
+    //printf("[%s:%d] %s\n",
+    //inet_ntoa(siOther.sin_addr), ntohs(siOther.sin_port), buffer);
 
     //Handle this input - yes, buffer's got function scope but technically this
     //is still inside the function, so we don't need to worry about undefined
