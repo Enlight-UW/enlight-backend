@@ -116,10 +116,16 @@ void handleServiceRequest(char const* requestString) {
         case 3:
             //Update status request
             break;
+        case 4:
+            //STDEcho request - send the payload to standard out.
 
+            char* ptr = requestString[68];
+            //Don't worry, there's a null terminator on the end of that - check
+            //UnixUDPStack.cpp if you're unsure.
+
+            cout << "[STDEcho] " << ptr << "\n";
+            break;
     }
-
-
 }
 
 int main(int argc, char** argv) {
