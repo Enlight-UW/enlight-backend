@@ -77,7 +77,7 @@ void UnixUDPStack::pseudoconstruct() {
  * version (3.4.4) of GCC that I'm using and I don't feel like upgrading, or
  * using any more libraries than I have to. Besides, it's easier this way.
  */
-void UnixUDPStack::checkAndHandlePackets(void (*handler)(char*)) {
+void UnixUDPStack::checkAndHandlePackets(void (*handler)(char const*)) {
     char buffer[BUFLEN];
     int bytesRead = 0;
     int siOtherLen = sizeof (siOther);

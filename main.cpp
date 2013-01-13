@@ -49,6 +49,9 @@ using namespace std;
 
 UDPStack* webfrontStack;
 
+char const* const SERVICE_MASTER_KEY =
+        "AF1993ADFE944E38FE8CED6E490D1BB16C6A20F7F36237753A2EAF5BF2503536";
+
 /**
  * Invoked by the main loop to handle global events. Happens after the reading
  * and processing of UDP packets, so things that would go here include code that
@@ -61,6 +64,8 @@ void globalProcess() {
 
 }
 
+int const test = 23;
+
 /**
  * Callback from our UDPStack. This takes the request string and:
  *  - Verifies the SMK
@@ -70,8 +75,16 @@ void globalProcess() {
  * 
  * @param requestString The blob from the Webfront.
  */
-void handleServiceRequest(char* requestString) {
-    //TODO: Let's ignore the first 64 bytes (service key) for now.
+void handleServiceRequest(char const* requestString) {
+    //Verify SMK
+    //The default SMK is:
+    //     AF1993ADFE944E38FE8CED6E490D1BB16C6A20F7F36237753A2EAF5BF2503536     
+
+    if (memcmp(SERVICE_MASTER_KEY, requestString, 64) != 0) {
+        //TODO: More info about _which_ client would potentially be useful here.
+        cout << "SMK validation failed(!), will not honor request.\n";
+        return;
+    }
 
     //Parse out the opcode, at bytes 64-68 in the char array... This is under
     //the assumption that the bytes arriving in requestString are big-endian and
@@ -110,9 +123,12 @@ void handleServiceRequest(char* requestString) {
 }
 
 int main(int argc, char** argv) {
+    //First is the sanity check to make sure the environment we're operating in
+    //follows the assumptions that we make.
+
     cout << "Running sanity check...\n\n";
 
-    //Check size of primative types so we can do some quick and dirty casting
+    //Check size of primitive types so we can do some quick and dirty casting
     //in other parts of the code.
     if (sizeof (int) != 4 * sizeof (char)) {
         cout << "Primitive type size assumption was incorrect - our ghetto cast"
@@ -120,6 +136,16 @@ int main(int argc, char** argv) {
                 << "bits and chars are 8.";
 
         return sizeof (int) + sizeof (char);
+    }
+
+    //Check that we've changed the default SMK; warn if we haven't.
+    const char* defaultSMK
+            = "AF1993ADFE944E38FE8CED6E490D1BB16C6A20F7F36237753A2EAF5BF2503536";
+    if (memcmp(SERVICE_MASTER_KEY, defaultSMK, 64) == 0) {
+        cout << "WARNING: THE SERVICE MASTER KEY IS STILL SET TO ITS DEFAULT "
+                << "VALUE. ANYONE WHO VIEWS THE SOURCE ON GITHUB AND KNOWS THE "
+                << "SERVER ADDRESS WILL BE ABLE TO TAKE CONTROL OF THE FOUNTAIN"
+                << ". CHANGE THE VALUE IN main.cpp NAMED SERVICE_MASTER_KEY!\n";
     }
 
     //Check to see if this is a little endian platform...
@@ -142,6 +168,12 @@ int main(int argc, char** argv) {
         //But really, little endian is better.
         return 16777216;
     }
+
+
+
+    //
+    // End of sanity check
+    //
 
 
     cout << "Enlight Fountain Backend\n";
@@ -175,7 +207,7 @@ int main(int argc, char** argv) {
     cout << "Entering main loop, listening on "
             << webfrontStack->getPort() << "...\n\n";
 
-    
+
     //TODO: Add sever shutdown capability based on received packet
     for (;;) {
         //Forever, check for a single packet from the Webfront, process it,
