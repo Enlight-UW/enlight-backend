@@ -16,6 +16,7 @@
 #define	UDPSTACK_H
 
 #define WEBFRONT_IP 127.0.0.1
+#define WEBFRONT_PORT 11911
 
 class UDPStack {
 public:

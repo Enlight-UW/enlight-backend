@@ -18,6 +18,7 @@
 
 #include "UnixUDPStack.h"
 
+//Buffer length used for both input and output buffers.
 #define BUFLEN 1024
 
 
@@ -114,6 +115,39 @@ void UnixUDPStack::checkAndHandlePackets(void (*handler)(char const*)) {
     handler(buffer);
 }
 
+/**
+ * Transmits the payload data to the Webfront.
+ * @param payload The binary data to be transmitted to the Webfront. Maximum
+ * length determined by BUFLEN - 1024 by default.
+ */
 void UnixUDPStack::sendData(char const* payload) {
+    struct sockaddr_in si_other;
+    int outSock, siOtherLength;
 
+    siOtherLength = sizeof (si_other);
+    char outBuffer[BUFLEN];
+
+    if ((outSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+        cout << "[UnixUDPStack] Couldn't write out, socket in use.\n";
+        return;
+    }
+
+    memset((char*) &si_other, 0, siOtherLength);
+
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(WEBFRONT_PORT);
+
+    if (inet_aton(WEBFRONT_IP, &si_other.sin_addr) == 0) {
+        cout << "[UnixUDPStack] Couldn't parse Webfront address.\n";
+        return;
+    }
+
+    memcpy(payload, outBuffer, BUFLEN);
+
+    if (sendto(outSock, outBuffer, BUFLEN, 0, &si_other, siOtherLength) == -1) {
+        cout << "[UnixUDPStack] Transmission failure.\n";
+        return;
+    }
+
+    close(outSock);
 }
