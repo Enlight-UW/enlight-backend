@@ -15,7 +15,7 @@
 #ifndef UDPSTACK_H
 #define	UDPSTACK_H
 
-#define WEBFRONT_IP 127.0.0.1
+#define WEBFRONT_IP "127.0.0.1"
 #define WEBFRONT_PORT 11911
 
 class UDPStack {
@@ -23,7 +23,7 @@ public:
     UDPStack(int port);
     virtual ~UDPStack() = 0;
     virtual void checkAndHandlePackets(void (*handler)(char const*)) = 0;
-    virtual void sendData(char const*);
+    virtual void sendData(char const*, unsigned int) = 0;
     int getPort() const;
 private:
     int port;

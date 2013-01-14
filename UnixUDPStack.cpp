@@ -120,7 +120,7 @@ void UnixUDPStack::checkAndHandlePackets(void (*handler)(char const*)) {
  * @param payload The binary data to be transmitted to the Webfront. Maximum
  * length determined by BUFLEN - 1024 by default.
  */
-void UnixUDPStack::sendData(char const* payload) {
+void UnixUDPStack::sendData(char const* payload, unsigned int payloadLength) {
     struct sockaddr_in si_other;
     int outSock, siOtherLength;
 
@@ -142,9 +142,12 @@ void UnixUDPStack::sendData(char const* payload) {
         return;
     }
 
-    memcpy(payload, outBuffer, BUFLEN);
+    memcpy(outBuffer, payload,
+            (payloadLength > BUFLEN ? BUFLEN : payloadLength));
 
-    if (sendto(outSock, outBuffer, BUFLEN, 0, &si_other, siOtherLength) == -1) {
+    if (sendto(outSock, outBuffer, BUFLEN, 0, (sockaddr*) & si_other,
+            siOtherLength) == -1) {
+
         cout << "[UnixUDPStack] Transmission failure.\n";
         return;
     }
