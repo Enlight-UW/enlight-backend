@@ -133,6 +133,7 @@ void UnixUDPStack::sendData(char const* payload, unsigned int payloadLength) {
     }
 
     memset((char*) &si_other, 0, siOtherLength);
+    memset(outBuffer, 0, BUFLEN);
 
     si_other.sin_family = AF_INET;
     si_other.sin_port = htons(WEBFRONT_PORT);
@@ -150,6 +151,9 @@ void UnixUDPStack::sendData(char const* payload, unsigned int payloadLength) {
 
         cout << "[UnixUDPStack] Transmission failure.\n";
         return;
+    } else {
+        //Debug
+        cout << "[UnixUDPStack] Transmitted: " << outBuffer << "\n";
     }
 
     close(outSock);

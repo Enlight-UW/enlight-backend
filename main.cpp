@@ -112,6 +112,16 @@ void handleServiceRequest(char const* requestString) {
         case 2:
             //Echo request
 
+            //Walk the request string to find the null byte (which we're
+            //guaranteed from our receive implementation).
+            int echoLength;
+
+            echoLength = -1;
+            while (requestString[68 + (++echoLength)] != '\0') {
+            }
+
+            webfrontStack->sendData(&(requestString[68]), echoLength);
+            cout << "[Echo] Length: " << echoLength << "\n";
             break;
         case 3:
             //Update status request
