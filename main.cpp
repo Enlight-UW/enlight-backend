@@ -125,6 +125,9 @@ void handleServiceRequest(char const* requestString) {
             break;
         case 3:
             //Update status request
+            cout << "Update request...\n";
+
+            webfrontStack->sendData("<Key>TODO serialize state and send</>", 37);
             break;
         case 4:
             //STDEcho request - send the payload to standard out.
