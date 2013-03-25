@@ -17,11 +17,12 @@ RANLIB=ranlib
 CC=gcc.exe
 CCC=g++.exe
 CXX=g++.exe
-FC=gfortran
+FC=gfortran.exe
 AS=as.exe
 
 # Macros
-CND_PLATFORM=Cygwin-Windows
+CND_PLATFORM=Cygwin_4.x-Windows
+CND_DLIB_EXT=dll
 CND_CONF=Release
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -35,9 +36,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/_ext/618568943/GlobalStateTracker.o \
-	${OBJECTDIR}/_ext/618568943/UDPStack.o \
-	${OBJECTDIR}/_ext/618568943/UnixUDPStack.o
+	${OBJECTDIR}/GlobalStateTracker.o \
+	${OBJECTDIR}/UDPStack.o \
+	${OBJECTDIR}/UnixUDPStack.o
 
 
 # C Compiler Flags
@@ -64,25 +65,25 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/enlight-backend.exe: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/enlight-backend ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/main.o: nbproject/Makefile-${CND_CONF}.mk main.cpp 
+${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
 
-${OBJECTDIR}/_ext/618568943/GlobalStateTracker.o: nbproject/Makefile-${CND_CONF}.mk /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/GlobalStateTracker.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/618568943
+${OBJECTDIR}/GlobalStateTracker.o: GlobalStateTracker.cpp 
+	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/618568943/GlobalStateTracker.o /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/GlobalStateTracker.cpp
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/GlobalStateTracker.o GlobalStateTracker.cpp
 
-${OBJECTDIR}/_ext/618568943/UDPStack.o: nbproject/Makefile-${CND_CONF}.mk /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/UDPStack.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/618568943
+${OBJECTDIR}/UDPStack.o: UDPStack.cpp 
+	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/618568943/UDPStack.o /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/UDPStack.cpp
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/UDPStack.o UDPStack.cpp
 
-${OBJECTDIR}/_ext/618568943/UnixUDPStack.o: nbproject/Makefile-${CND_CONF}.mk /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/UnixUDPStack.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/618568943
+${OBJECTDIR}/UnixUDPStack.o: UnixUDPStack.cpp 
+	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/618568943/UnixUDPStack.o /cygdrive/C/Users/Alex/Documents/GitHub/enlight-backend/UnixUDPStack.cpp
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/UnixUDPStack.o UnixUDPStack.cpp
 
 # Subprojects
 .build-subprojects:

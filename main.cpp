@@ -22,11 +22,13 @@
 //How long to wait (in milliseconds) between process ticks. I recommend 50ms or
 //so, because our fountain jet interval is 250ms and we want to be able to be on
 //top of things there.
-#define DELAY 50
+#define DELAY 25
 
 
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
+#include <sstream>
 
 #include "UDPStack.h"
 
@@ -64,7 +66,7 @@ void globalProcess() {
 
 }
 
-int const test = 23;
+int test = 0;
 
 /**
  * Callback from our UDPStack. This takes the request string and:
@@ -104,6 +106,10 @@ void handleServiceRequest(char const* requestString) {
     opcode.bytes[1] = requestString[66];
     opcode.bytes[0] = requestString[67];
 
+
+           std::stringstream sstm;
+           string tests;
+           
     switch (opcode.value) {
         case 1:
             //Stop the server
@@ -127,7 +133,11 @@ void handleServiceRequest(char const* requestString) {
             //Update status request
             cout << "Update request...\n";
 
-            webfrontStack->sendData("<Key>TODO serialize state and send</>", 37);
+ 
+            sstm << "<testvalue>Test value is " << test++ << "</>";
+            tests = sstm.str();
+
+            webfrontStack->sendData(tests.c_str(), tests.size());
             break;
         case 4:
             //STDEcho request - send the payload to standard out.

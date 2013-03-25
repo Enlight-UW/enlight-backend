@@ -21,6 +21,8 @@
 //Buffer length used for both input and output buffers.
 #define BUFLEN 1024
 
+#include <cstring>
+#include <cstdlib>
 
 using namespace std;
 
