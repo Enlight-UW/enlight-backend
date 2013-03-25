@@ -16,6 +16,8 @@ public:
     GlobalStateTracker();
     GlobalStateTracker(const GlobalStateTracker& orig);
     virtual ~GlobalStateTracker();
+    char const* getSerializedState() const;
+    int getSerializedStateSize() const;
 private:
     
 };

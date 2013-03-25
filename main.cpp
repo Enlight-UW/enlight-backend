@@ -107,9 +107,10 @@ void handleServiceRequest(char const* requestString) {
     opcode.bytes[0] = requestString[67];
 
 
-           std::stringstream sstm;
-           string tests;
-           
+    std::stringstream sstm;
+    string tests;
+
+
     switch (opcode.value) {
         case 1:
             //Stop the server
@@ -133,11 +134,13 @@ void handleServiceRequest(char const* requestString) {
             //Update status request
             cout << "Update request...\n";
 
- 
-            sstm << "<testvalue>Test value is " << test++ << "</>";
+            //Todo: Serialize the state data
+
+            sstm << "<valveState>" << test++ << "</>";
             tests = sstm.str();
 
             webfrontStack->sendData(tests.c_str(), tests.size());
+
             break;
         case 4:
             //STDEcho request - send the payload to standard out.
