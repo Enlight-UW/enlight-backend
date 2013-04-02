@@ -37,3 +37,7 @@ char const* GlobalStateTracker::getSerializedState() const {
 int GlobalStateTracker::getSerializedStateSize() const {
 
 }
+
+/** we need some kind of function like "moveToState" that takes care of issues
+ like turning too many values on/off at the same time and all valve update requests
+ need to go through this function so we don't break anything. */

@@ -54,6 +54,9 @@ UDPStack* webfrontStack;
 char const* const SERVICE_MASTER_KEY =
         "AF1993ADFE944E38FE8CED6E490D1BB16C6A20F7F36237753A2EAF5BF2503536";
 
+int const SMK_LENGTH = 64;
+int const API_KEY_LENGTH = 64;
+
 /**
  * Invoked by the main loop to handle global events. Happens after the reading
  * and processing of UDP packets, so things that would go here include code that
@@ -82,7 +85,7 @@ void handleServiceRequest(char const* requestString) {
     //The default SMK is:
     //     AF1993ADFE944E38FE8CED6E490D1BB16C6A20F7F36237753A2EAF5BF2503536     
 
-    if (memcmp(SERVICE_MASTER_KEY, requestString, 64) != 0) {
+    if (memcmp(SERVICE_MASTER_KEY, requestString, SMK_LENGTH) != 0) {
         //TODO: More info about _which_ client would potentially be useful here.
         cout << "SMK validation failed(!), will not honor request.\n";
         return;
@@ -101,10 +104,14 @@ void handleServiceRequest(char const* requestString) {
     } opcode;
 
     //Little endian platform, big endian encoding - switch the ordering around
-    opcode.bytes[3] = requestString[64];
-    opcode.bytes[2] = requestString[65];
-    opcode.bytes[1] = requestString[66];
-    opcode.bytes[0] = requestString[67];
+    opcode.bytes[3] = requestString[SMK_LENGTH];
+    opcode.bytes[2] = requestString[SMK_LENGTH + 1];
+    opcode.bytes[1] = requestString[SMK_LENGTH + 2];
+    opcode.bytes[0] = requestString[SMK_LENGTH + 3];
+    
+    //TODO: For certain cases, check to see if this user actually has control
+    //at this point in time. For those cases, the first parameter of length
+    //API_KEY_LENGTH will be their respective key.
 
 
     std::stringstream sstm;
