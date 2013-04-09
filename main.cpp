@@ -151,6 +151,38 @@ void handleServiceRequest(char const* requestString) {
 
             cout << "[STDEcho] " << ptr << "\n";
             break;
+        case 5:
+            //SetValveState
+
+            //TODO: Check priority of this request and see if the current API
+            //key being used has a higher priority or not.
+
+            //The new state will be past the SMK, API key and opcode
+            char* buffer = new char[5];
+            memcpy(buffer, (void*)(requestString + SMK_LENGTH + 4 + API_KEY_LENGTH), 4);
+            buffer[4] = '\0';
+
+            stateTracker->setValveState(atoi(buffer));
+
+            delete buffer;
+
+            break;
+        case 6:
+            //SetRestrictState
+            
+            //TODO: Priority check
+            
+            char* buffer2 = new char[5];
+            memcpy(buffer2, (void*)(requestString + SMK_LENGTH + 4 + API_KEY_LENGTH), 4);
+            buffer2[4] = '\0';
+
+            stateTracker->setRestrictState(atoi(buffer2));
+
+            delete buffer2;
+
+            break;
+
+            //TODO: RequestControl opcode
     }
 }
 

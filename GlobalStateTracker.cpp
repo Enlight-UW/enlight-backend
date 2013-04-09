@@ -50,6 +50,14 @@ int GlobalStateTracker::getSerializedStateSize() const {
     return stateStringSize;
 }
 
+void GlobalStateTracker::setValveState(int state) {
+    valveState = state;
+}
+
+void GlobalStateTracker::setRestrictState(int state) {
+    restrictState = state;
+}
+
 /** we need some kind of function like "moveToState" that takes care of issues
  like turning too many values on/off at the same time and all valve update requests
  need to go through this function so we don't break anything. */

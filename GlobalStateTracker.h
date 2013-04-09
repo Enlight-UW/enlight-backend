@@ -10,16 +10,20 @@
 #ifndef GLOBALSTATETRACKER_H
 #define	GLOBALSTATETRACKER_H
 
-
 class GlobalStateTracker {
 public:
     GlobalStateTracker();
     GlobalStateTracker(const GlobalStateTracker& orig);
     virtual ~GlobalStateTracker();
+
     char const* getSerializedState() const;
     int getSerializedStateSize() const;
+
+    void setValveState(int state);
+    void setRestrictState(int state);
+
 private:
-    
+
 };
 
 #endif	/* GLOBALSTATETRACKER_H */
