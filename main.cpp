@@ -145,11 +145,9 @@ void handleServiceRequest(char const* requestString) {
         case 4:
             //STDEcho request - send the payload to standard out.
 
-            char const* ptr = &(requestString[68]);
-            //Don't worry, there's a null terminator on the end of that - check
+            //Don't worry, there's a null terminator on the end of this - check
             //UnixUDPStack.cpp if you're unsure.
-
-            cout << "[STDEcho] " << ptr << "\n";
+            cout << "[STDEcho] " <<  (char const*)(&(requestString[68])) << "\n";
             break;
         case 5:
             //SetValveState
@@ -158,27 +156,19 @@ void handleServiceRequest(char const* requestString) {
             //key being used has a higher priority or not.
 
             //The new state will be past the SMK, API key and opcode
-            char* buffer = new char[5];
-            memcpy(buffer, (void*)(requestString + SMK_LENGTH + 4 + API_KEY_LENGTH), 4);
-            buffer[4] = '\0';
 
-            stateTracker->setValveState(atoi(buffer));
-
-            delete buffer;
+            //Assume there's no parameter after this one - if there is, atoi
+            //won't see the \0 and bad things will happen.
+            stateTracker->setValveState(atoi((char const*)(&(requestString[4 + SMK_LENGTH + API_KEY_LENGTH]))));
 
             break;
         case 6:
             //SetRestrictState
-            
+
             //TODO: Priority check
-            
-            char* buffer2 = new char[5];
-            memcpy(buffer2, (void*)(requestString + SMK_LENGTH + 4 + API_KEY_LENGTH), 4);
-            buffer2[4] = '\0';
 
-            stateTracker->setRestrictState(atoi(buffer2));
-
-            delete buffer2;
+            //Same assumption as before
+            stateTracker->setRestrictState(atoi((char const*)(&(requestString[4 + SMK_LENGTH + API_KEY_LENGTH]))));
 
             break;
 

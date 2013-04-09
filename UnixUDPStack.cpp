@@ -155,7 +155,7 @@ void UnixUDPStack::sendData(char const* payload, unsigned int payloadLength) {
         return;
     } else {
         //Debug
-        cout << "[UnixUDPStack] Transmitted: " << outBuffer << "\n";
+       // cout << "[UnixUDPStack] Transmitted: " << outBuffer << "\n";
     }
 
     close(outSock);
