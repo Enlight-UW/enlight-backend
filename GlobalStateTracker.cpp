@@ -9,6 +9,7 @@
  */
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 #include "GlobalStateTracker.h"
 
@@ -18,7 +19,9 @@ using namespace std;
 //track of. Some of these may be loaded from disk upon creation of this object,
 //but these should all be accounted for in your serialize method!
 string controlState = "Unassigned";
-int valveState = 0; // (Aligned to the right (MSB bits 0): V1, V2 ... HC, HR)
+int valveState = 0; // Aligned to the right (MSB bits 0): V1, V2 ... HC, HR
+int restrictState = 0; //Alignment the same as valveState
+int stateStringSize = 0; //Internal tracking of state string size
 
 GlobalStateTracker::GlobalStateTracker() {
 }
@@ -30,12 +33,21 @@ GlobalStateTracker::~GlobalStateTracker() {
 }
 
 char const* GlobalStateTracker::getSerializedState() const {
-    string builder = "";
+    std::stringstream streambuilder;
+    string builder;
 
+    streambuilder << "<valveState>" << valveState << "</><restrictState>" << restrictState << "</>";
+
+    builder = streambuilder.str();
+    stateStringSize = builder.size();
+
+    return builder.c_str();
 }
 
 int GlobalStateTracker::getSerializedStateSize() const {
-
+    //TODO: Make sure stateStringSize doesn't get too big, otherwise we'll run
+    //over our network buffer and not transmit some of the data.
+    return stateStringSize;
 }
 
 /** we need some kind of function like "moveToState" that takes care of issues

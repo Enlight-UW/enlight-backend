@@ -31,6 +31,7 @@
 #include <sstream>
 
 #include "UDPStack.h"
+#include "GlobalStateTracker.h"
 
 
 //Windows vs Unix headers
@@ -50,6 +51,7 @@
 using namespace std;
 
 UDPStack* webfrontStack;
+GlobalStateTracker* stateTracker;
 
 char const* const SERVICE_MASTER_KEY =
         "AF1993ADFE944E38FE8CED6E490D1BB16C6A20F7F36237753A2EAF5BF2503536";
@@ -108,14 +110,10 @@ void handleServiceRequest(char const* requestString) {
     opcode.bytes[2] = requestString[SMK_LENGTH + 1];
     opcode.bytes[1] = requestString[SMK_LENGTH + 2];
     opcode.bytes[0] = requestString[SMK_LENGTH + 3];
-    
+
     //TODO: For certain cases, check to see if this user actually has control
     //at this point in time. For those cases, the first parameter of length
     //API_KEY_LENGTH will be their respective key.
-
-
-    std::stringstream sstm;
-    string tests;
 
 
     switch (opcode.value) {
@@ -141,13 +139,8 @@ void handleServiceRequest(char const* requestString) {
             //Update status request
             cout << "Update request...\n";
 
-            //Todo: Serialize the state data
-
-            sstm << "<valveState>" << test++ << "</>";
-            tests = sstm.str();
-
-            webfrontStack->sendData(tests.c_str(), tests.size());
-
+            webfrontStack->sendData(stateTracker->getSerializedState(),
+                    stateTracker->getSerializedStateSize());
             break;
         case 4:
             //STDEcho request - send the payload to standard out.
@@ -220,6 +213,7 @@ int main(int argc, char** argv) {
     cout << __DATE__ << "\n\n";
 
     cout << "Setting up default global state...\n";
+    stateTracker = new GlobalStateTracker();
 
 #if WINDOWS
     cout << "\nNo Windows implementation yet, sorry!\n";
@@ -266,6 +260,7 @@ int main(int argc, char** argv) {
 
 
     delete webfrontStack;
+    delete stateTracker;
     return 0;
 }
 
