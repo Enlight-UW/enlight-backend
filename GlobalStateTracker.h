@@ -16,7 +16,7 @@ public:
     GlobalStateTracker(const GlobalStateTracker& orig);
     virtual ~GlobalStateTracker();
 
-    char const* getSerializedState() const;
+    char const* getSerializedState();
     int getSerializedStateSize() const;
 
     void setValveState(int state);

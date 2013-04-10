@@ -32,7 +32,7 @@ GlobalStateTracker::GlobalStateTracker(const GlobalStateTracker& orig) {
 GlobalStateTracker::~GlobalStateTracker() {
 }
 
-char const* GlobalStateTracker::getSerializedState() const {
+char const* GlobalStateTracker::getSerializedState() {
     std::stringstream streambuilder;
     string builder;
 

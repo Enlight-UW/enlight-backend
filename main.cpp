@@ -137,9 +137,9 @@ void handleServiceRequest(char const* requestString) {
             break;
         case 3:
             //Update status request
-            cout << "Update request...\n";
+            char const* stateInfo = stateTracker->getSerializedState();
 
-            webfrontStack->sendData(stateTracker->getSerializedState(),
+            webfrontStack->sendData(stateInfo,
                     stateTracker->getSerializedStateSize());
             break;
         case 4:
@@ -147,7 +147,7 @@ void handleServiceRequest(char const* requestString) {
 
             //Don't worry, there's a null terminator on the end of this - check
             //UnixUDPStack.cpp if you're unsure.
-            cout << "[STDEcho] " <<  (char const*)(&(requestString[68])) << "\n";
+            cout << "[STDEcho] " << (requestString + 68) << "\n";
             break;
         case 5:
             //SetValveState
@@ -159,7 +159,9 @@ void handleServiceRequest(char const* requestString) {
 
             //Assume there's no parameter after this one - if there is, atoi
             //won't see the \0 and bad things will happen.
-            stateTracker->setValveState(atoi((char const*)(&(requestString[4 + SMK_LENGTH + API_KEY_LENGTH]))));
+            cout << "Atoi is " << atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH) << endl;
+
+            stateTracker->setValveState(atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
 
             break;
         case 6:
@@ -167,9 +169,10 @@ void handleServiceRequest(char const* requestString) {
 
             //TODO: Priority check
 
-            //Same assumption as before
-            stateTracker->setRestrictState(atoi((char const*)(&(requestString[4 + SMK_LENGTH + API_KEY_LENGTH]))));
+            cout << "Atoi2 is " << atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH) << endl;
 
+            //Same assumption as before
+            stateTracker->setRestrictState(atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
             break;
 
             //TODO: RequestControl opcode
