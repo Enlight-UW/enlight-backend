@@ -145,6 +145,14 @@ void UnixUDPStack::sendData(char const* payload, unsigned int payloadLength) {
         return;
     }
 
+    //This might look dangerous, but there's a few cases here. First, know that
+    //payloadLength is the size of the payload string sans the terminating \0.
+    //This means that we'll need to append one if it's shorter than the buffer
+    //size. Luckily, we fill this buffer earlier with \0's so it's okay. In the
+    //case that we truncate the payload (because payloadLength > BUFLEN), there
+    //will be no NULL byte at the end of the payload - but that's also okay
+    //because our receiving end experts a payload of up to BUFLEN only, and will
+    //only read that much.
     memcpy(outBuffer, payload,
             (payloadLength > BUFLEN ? BUFLEN : payloadLength));
 

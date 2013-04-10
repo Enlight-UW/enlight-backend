@@ -137,9 +137,9 @@ void handleServiceRequest(char const* requestString) {
             break;
         case 3:
             //Update status request
-            char const* stateInfo = stateTracker->getSerializedState();
+            stateTracker->generateSerializedState();
 
-            webfrontStack->sendData(stateInfo,
+            webfrontStack->sendData(stateTracker->getSerializedStateValue(),
                     stateTracker->getSerializedStateSize());
             break;
         case 4:

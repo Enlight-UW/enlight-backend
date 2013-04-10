@@ -21,7 +21,6 @@ using namespace std;
 string controlState = "Unassigned";
 int valveState = 0; // Aligned to the right (MSB bits 0): V1, V2 ... HC, HR
 int restrictState = 0; //Alignment the same as valveState
-int stateStringSize = 0; //Internal tracking of state string size
 
 GlobalStateTracker::GlobalStateTracker() {
 }
@@ -32,7 +31,14 @@ GlobalStateTracker::GlobalStateTracker(const GlobalStateTracker& orig) {
 GlobalStateTracker::~GlobalStateTracker() {
 }
 
-char const* GlobalStateTracker::getSerializedState() {
+char const* stateString;
+int stateStringSize = 0; //Internal tracking of state string size
+
+/**
+ * Generates the serialized current state. Call first before getting the value
+ * or size. Internally sets the cstring and size variable to keep track of it.
+ */
+void GlobalStateTracker::generateSerializedState() {
     std::stringstream streambuilder;
     string builder;
 
@@ -41,9 +47,24 @@ char const* GlobalStateTracker::getSerializedState() {
     builder = streambuilder.str();
     stateStringSize = builder.size();
 
-    return builder.c_str();
+    
+    stateString = builder.c_str();
 }
 
+/**
+ * Gets the previously generated state of the fountain.
+ * 
+ * @return A cstring to the serialized state of the fountain.
+ */
+char const* GlobalStateTracker::getSerializedStateValue() const {
+    return stateString;
+}
+
+/**
+ * Gets the size of the last serialized state string.
+ * 
+ * @return The character length of the previous state serialization. 
+ */
 int GlobalStateTracker::getSerializedStateSize() const {
     //TODO: Make sure stateStringSize doesn't get too big, otherwise we'll run
     //over our network buffer and not transmit some of the data.
