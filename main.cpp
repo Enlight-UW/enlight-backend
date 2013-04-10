@@ -159,8 +159,6 @@ void handleServiceRequest(char const* requestString) {
 
             //Assume there's no parameter after this one - if there is, atoi
             //won't see the \0 and bad things will happen.
-            cout << "Atoi is " << atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH) << endl;
-
             stateTracker->setValveState(atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
 
             break;
@@ -168,8 +166,6 @@ void handleServiceRequest(char const* requestString) {
             //SetRestrictState
 
             //TODO: Priority check
-
-            cout << "Atoi2 is " << atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH) << endl;
 
             //Same assumption as before
             stateTracker->setRestrictState(atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
