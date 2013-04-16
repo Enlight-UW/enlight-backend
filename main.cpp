@@ -170,7 +170,15 @@ void handleServiceRequest(char const* requestString) {
             //Same assumption as before
             stateTracker->setRestrictState(atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
             break;
+        case 7:
+            //ToggleValveState
+            //TODO: Check priorities, etc.
+            //Assume there's no parameter after this one - if there is, atoi
+            //won't see the \0 and bad things will happen.
+            stateTracker->setValveState(stateTracker->getValveState() ^
+                    atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
 
+            break;
             //TODO: RequestControl opcode
     }
 }

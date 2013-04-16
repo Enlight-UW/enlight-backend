@@ -19,6 +19,8 @@ public:
     void generateSerializedState();
     char const* getSerializedStateValue() const;
     int getSerializedStateSize() const;
+    
+    int getValveState() const;
 
     void setValveState(int state);
     void setRestrictState(int state);

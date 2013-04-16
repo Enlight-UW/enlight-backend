@@ -47,7 +47,7 @@ void GlobalStateTracker::generateSerializedState() {
     builder = streambuilder.str();
     stateStringSize = builder.size();
 
-    
+
     stateString = builder.c_str();
 }
 
@@ -79,6 +79,13 @@ void GlobalStateTracker::setRestrictState(int state) {
     restrictState = state;
 }
 
+/**
+ * Used for things like bitmasking the existing state to toggle the valves.
+ * @return The current state represented as an integer.
+ */
+int GlobalStateTracker::getValveState() const {
+    return valveState;
+}
 /** we need some kind of function like "moveToState" that takes care of issues
  like turning too many values on/off at the same time and all valve update requests
  need to go through this function so we don't break anything. */
