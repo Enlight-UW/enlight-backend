@@ -10,6 +10,7 @@
 
 #include "UDPStack.h"
 
+//TODO: Move these, why are they here... bad bad bad
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/types.h>
@@ -28,6 +29,7 @@ public:
     virtual ~UnixUDPStack();
     virtual void checkAndHandlePackets(void (*handler)(char const*));
     virtual void sendData(char const*, unsigned int);
+    virtual void sendDataToFountain(char const*, unsigned int);
 private:
     int sock;
     struct sockaddr_in siMe, siOther;

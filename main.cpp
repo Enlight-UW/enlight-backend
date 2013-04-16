@@ -59,6 +59,78 @@ char const* const SERVICE_MASTER_KEY =
 int const SMK_LENGTH = 64;
 int const API_KEY_LENGTH = 64;
 
+int badTimer = 0;
+
+/**
+ * Take the current state from our global state tracker and send it over UDP to
+ * the fountain. Do it only once per second.
+ */
+void sendStateToFountain() {
+    //FIXME: Better way of timing, right now just add the delays every time and
+    //do it when we roll over 1000.
+    badTimer += DELAY;
+
+    if (badTimer >= 1000) {
+        badTimer = 0;
+    } else {
+
+        return;
+    }
+
+
+    //Craft the payload to send to the fountain.
+    int southValveState = stateTracker->getValveState();
+    int verticalStates = southValveState & 4095;
+    int horizontalStates = southValveState & 16773120;
+    
+    //Align horizontal states to the LSB, just like vertical states
+    horizontalStates >>= 12;
+
+
+    //The format of the packet is two 2-byte values, padded with don't cares
+    //in front, horizontal first. However, the cRIO protocol switches xC and xR
+    //on us, so do that.
+
+    //Extract the correct values for xC, xR
+    int hR = horizontalStates & 512;
+    int hC = horizontalStates & 256;
+    int vR = verticalStates & 512;
+    int vC = verticalStates & 256;
+
+    //Shift them to where they should be
+    hR >>= 1;
+    hC <<= 1;
+    vR >>= 1;
+    vC <<= 1;
+
+    //Clear the existing states at those positions
+    horizontalStates &= 255;
+    verticalStates &= 255;
+
+    //Recombine
+    horizontalStates += hR;
+    horizontalStates += hC;
+    verticalStates += vR;
+    verticalStates += vC;
+
+    int combinedStates = horizontalStates << 16;
+    combinedStates += verticalStates;
+
+    //This is probably little-endian,so format it according to the order the
+    //crio expects.
+    char payload[5];
+    payload[0] = 1; //opcode for south end valves
+    payload[1] = (horizontalStates & 3840) >> 8;
+    payload[2] = horizontalStates & 255;
+    payload[3] = (verticalStates & 3840) >> 8;
+    payload[4] = verticalStates & 255;
+
+    //Send it away!
+
+    webfrontStack->sendDataToFountain((char const*) (&payload),
+            5);
+}
+
 /**
  * Invoked by the main loop to handle global events. Happens after the reading
  * and processing of UDP packets, so things that would go here include code that
@@ -68,10 +140,9 @@ int const API_KEY_LENGTH = 64;
  * the hardware buffer) and PHP will see it a tenth of a second or so later.
  */
 void globalProcess() {
-
+    //Send the updated state to the fountain.
+    sendStateToFountain();
 }
-
-int test = 0;
 
 /**
  * Callback from our UDPStack. This takes the request string and:
@@ -269,6 +340,9 @@ int main(int argc, char** argv) {
     cout << "Entering main loop, listening on "
             << webfrontStack->getPort() << "...\n\n";
 
+    cout << "TODO: Change the cRIO port and address to the correct values. We "
+            << "don't want them in the commit log, and we're probably going to "
+            << "wind up storing them in a flatfile somewhere." << endl;
 
     //TODO: Add sever shutdown capability based on received packet
     for (;;) {

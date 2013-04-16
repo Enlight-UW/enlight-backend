@@ -21,6 +21,9 @@
 //Buffer length used for both input and output buffers.
 #define BUFLEN 1024
 
+//cRio's receive buffer is 256 bytes long.
+#define FOUNTAIN_BUFLEN 256
+
 #include <cstring>
 #include <cstdlib>
 
@@ -159,11 +162,58 @@ void UnixUDPStack::sendData(char const* payload, unsigned int payloadLength) {
     if (sendto(outSock, outBuffer, BUFLEN, 0, (sockaddr*) & si_other,
             siOtherLength) == -1) {
 
-        cout << "[UnixUDPStack] Transmission failure.\n";
+        cout << "[UnixUDPStack] toWebfront Transmission failure.\n";
         return;
     } else {
-        //Debug
-       // cout << "[UnixUDPStack] Transmitted: " << outBuffer << "\n";
+        //Success
+        // cout << "[UnixUDPStack] Transmitted: " << outBuffer << "\n";
+    }
+
+    close(outSock);
+}
+
+void UnixUDPStack::sendDataToFountain(char const* payload, unsigned int payloadLength) {
+    struct sockaddr_in si_other;
+    int outSock, siOtherLength;
+
+    siOtherLength = sizeof (si_other);
+    char outBuffer[FOUNTAIN_BUFLEN];
+
+    if ((outSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+        cout << "[UnixUDPStack] Couldn't write out, socket in use.\n";
+        return;
+    }
+
+    memset((char*) &si_other, 0, siOtherLength);
+    memset(outBuffer, 0, FOUNTAIN_BUFLEN);
+
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(FOUNTAIN_PORT);
+
+    if (inet_aton(FOUNTAIN_IP, &si_other.sin_addr) == 0) {
+        cout << "[UnixUDPStack] Couldn't parse fountain address.\n";
+        return;
+    }
+
+    //This might look dangerous, but there's a few cases here. First, know that
+    //payloadLength is the size of the payload string sans the terminating \0.
+    //This means that we'll need to append one if it's shorter than the buffer
+    //size. Luckily, we fill this buffer earlier with \0's so it's okay. In the
+    //case that we truncate the payload (because payloadLength > BUFLEN), there
+    //will be no NULL byte at the end of the payload - but that's also okay
+    //because our receiving end experts a payload of up to BUFLEN only, and will
+    //only read that much.
+    memcpy(outBuffer, payload,
+            (payloadLength > FOUNTAIN_BUFLEN ? FOUNTAIN_BUFLEN : payloadLength));
+
+    if (sendto(outSock, outBuffer, (payloadLength > FOUNTAIN_BUFLEN ? FOUNTAIN_BUFLEN : payloadLength), 0, (sockaddr*) & si_other,
+            siOtherLength) == -1) {
+
+        cout << "[UnixUDPStack] toFountain Transmission failure.\n";
+        return;
+    } else {
+        //Success
+        // cout << "[UnixUDPStack] Transmitted: " << outBuffer << "\n";
     }
 
     close(outSock);
