@@ -21,9 +21,12 @@ public:
     int getSerializedStateSize() const;
     
     int getValveState() const;
+    int getNextValveState() const;
 
-    void setValveState(int state);
+    void setNextValveState(int state);
     void setRestrictState(int state);
+    
+    bool ease();
 
 private:
 

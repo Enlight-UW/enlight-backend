@@ -19,6 +19,12 @@ using namespace std;
 //track of. Some of these may be loaded from disk upon creation of this object,
 //but these should all be accounted for in your serialize method!
 string controlState = "Unassigned";
+
+int nextValveState = 0; //Whatever we *want* the next state to be. This will be
+//updated asynchronously via API requests and whatnot,
+//but we'll ease into it before actually setting the
+//state.
+
 int valveState = 0; // Aligned to the right (MSB bits 0): V1, V2 ... HC, HR
 int restrictState = 0; //Alignment the same as valveState
 
@@ -71,8 +77,8 @@ int GlobalStateTracker::getSerializedStateSize() const {
     return stateStringSize;
 }
 
-void GlobalStateTracker::setValveState(int state) {
-    valveState = state;
+void GlobalStateTracker::setNextValveState(int state) {
+    nextValveState = state;
 }
 
 void GlobalStateTracker::setRestrictState(int state) {
@@ -86,6 +92,43 @@ void GlobalStateTracker::setRestrictState(int state) {
 int GlobalStateTracker::getValveState() const {
     return valveState;
 }
-/** we need some kind of function like "moveToState" that takes care of issues
- like turning too many values on/off at the same time and all valve update requests
- need to go through this function so we don't break anything. */
+
+int GlobalStateTracker::getNextValveState() const {
+    return nextValveState;
+}
+
+/**
+ * Called by the main process loop to ease us in to the next state. Will update
+ * a single valve from nextValveState into valveState and then stop updating to
+ * prevent too many from changing state at once. The timing of this method is
+ * controlled by a constant in main, determining the length of time needed
+ * between single valves changing state. Therefore, this method will move
+ * exactly one valve to its new value, but be called multiple times in the
+ * course of a second (or even in the course of cRIO update clocks), so the
+ * actual display won't look like it's just doing one at once.
+ *  
+ * @return true if we actually updated the current state, false otherwise. */
+bool GlobalStateTracker::ease() {
+    //Set chkIdx to however many total valves there are, minus one.
+    int chkIdx = 23;
+
+
+    while (chkIdx >= 0) {
+        int chkMask = 1 << chkIdx;
+        
+        //Compare next state and current state from the MSB and moving right
+        if (valveState & chkMask != nextValveState & chkMask) {
+            //These are different - update this valve and return.
+            //Blank the current one and add whatever the movement would be.
+            valveState &= ~chkMask;
+            valveState |= (nextValveState & chkMask);
+            
+            return true;
+        }
+        
+        chkIdx--;
+    }
+    
+    
+    return false;
+}

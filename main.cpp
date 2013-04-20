@@ -22,8 +22,15 @@
 //How long to wait (in milliseconds) between process ticks. I recommend 50ms or
 //so, because our fountain jet interval is 250ms and we want to be able to be on
 //top of things there.
-#define DELAY 25
+#define DELAY 50
 
+//Even if a clock edge hits, no more than (ACTUATION_SEPARATION / CLOCK) valves
+//will be moved to the nextState at once. With A_S and CLK of 200, this
+//means up to 5 valves per second will toggle.
+#define ACTUATION_SEPARATION 200
+
+//How long to wait between state updates to the fountain.
+#define CLOCK 200
 
 #include <cstdlib>
 #include <cstring>
@@ -59,30 +66,20 @@ char const* const SERVICE_MASTER_KEY =
 int const SMK_LENGTH = 64;
 int const API_KEY_LENGTH = 64;
 
-int badTimer = 0;
+int actuationTimer = 0;
+int clockTimer = 0;
 
 /**
  * Take the current state from our global state tracker and send it over UDP to
- * the fountain. Do it only once per second.
+ * the fountain. Do it only when you should (clock edge) - not handled in this
+ * function, so be careful.
  */
 void sendStateToFountain() {
-    //FIXME: Better way of timing, right now just add the delays every time and
-    //do it when we roll over 1000.
-    badTimer += DELAY;
-
-    if (badTimer >= 1000) {
-        badTimer = 0;
-    } else {
-
-        return;
-    }
-
-
     //Craft the payload to send to the fountain.
     int southValveState = stateTracker->getValveState();
     int verticalStates = southValveState & 4095;
     int horizontalStates = southValveState & 16773120;
-    
+
     //Align horizontal states to the LSB, just like vertical states
     horizontalStates >>= 12;
 
@@ -92,10 +89,10 @@ void sendStateToFountain() {
     //on us, so do that.
 
     //Extract the correct values for xC, xR
-    int hR = horizontalStates & 512;
-    int hC = horizontalStates & 256;
-    int vR = verticalStates & 512;
-    int vC = verticalStates & 256;
+    int hR = horizontalStates & 2048;
+    int hC = horizontalStates & 1024;
+    int vR = verticalStates & 2048;
+    int vC = verticalStates & 1024;
 
     //Shift them to where they should be
     hR >>= 1;
@@ -104,8 +101,8 @@ void sendStateToFountain() {
     vC <<= 1;
 
     //Clear the existing states at those positions
-    horizontalStates &= 255;
-    verticalStates &= 255;
+    horizontalStates &= 1023;
+    verticalStates &= 1023;
 
     //Recombine
     horizontalStates += hR;
@@ -140,8 +137,30 @@ void sendStateToFountain() {
  * the hardware buffer) and PHP will see it a tenth of a second or so later.
  */
 void globalProcess() {
+    bool stateIsDirty = false;
+
+    //Move us nicely to the next valve state.
+    actuationTimer += DELAY;
+
+
+    if (actuationTimer >= ACTUATION_SEPARATION) {
+        actuationTimer = 0;
+        stateIsDirty = stateTracker->ease();
+    }
+
+
     //Send the updated state to the fountain.
-    sendStateToFountain();
+
+    clockTimer += DELAY;
+
+    if (clockTimer >= CLOCK) {
+        clockTimer = 0;
+        
+        //Save network traffic by not updating if nothing's changed.
+        if (stateIsDirty) {
+            sendStateToFountain();
+        }
+    }
 }
 
 /**
@@ -230,7 +249,7 @@ void handleServiceRequest(char const* requestString) {
 
             //Assume there's no parameter after this one - if there is, atoi
             //won't see the \0 and bad things will happen.
-            stateTracker->setValveState(atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
+            stateTracker->setNextValveState(atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
 
             break;
         case 6:
@@ -246,7 +265,7 @@ void handleServiceRequest(char const* requestString) {
             //TODO: Check priorities, etc.
             //Assume there's no parameter after this one - if there is, atoi
             //won't see the \0 and bad things will happen.
-            stateTracker->setValveState(stateTracker->getValveState() ^
+            stateTracker->setNextValveState(stateTracker->getNextValveState() ^
                     atoi(requestString + 4 + SMK_LENGTH + API_KEY_LENGTH));
 
             break;
