@@ -112,23 +112,23 @@ bool GlobalStateTracker::ease() {
     //Set chkIdx to however many total valves there are, minus one.
     int chkIdx = 23;
 
-
+    
     while (chkIdx >= 0) {
         int chkMask = 1 << chkIdx;
-        
+
         //Compare next state and current state from the MSB and moving right
-        if (valveState & chkMask != nextValveState & chkMask) {
+        if ((valveState & chkMask) != (nextValveState & chkMask)) {
             //These are different - update this valve and return.
             //Blank the current one and add whatever the movement would be.
             valveState &= ~chkMask;
             valveState |= (nextValveState & chkMask);
-            
+
             return true;
         }
-        
+
         chkIdx--;
     }
-    
-    
+
+
     return false;
 }

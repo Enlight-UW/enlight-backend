@@ -128,6 +128,8 @@ void sendStateToFountain() {
             5);
 }
 
+bool stateIsDirty = false;
+
 /**
  * Invoked by the main loop to handle global events. Happens after the reading
  * and processing of UDP packets, so things that would go here include code that
@@ -137,15 +139,15 @@ void sendStateToFountain() {
  * the hardware buffer) and PHP will see it a tenth of a second or so later.
  */
 void globalProcess() {
-    bool stateIsDirty = false;
-
     //Move us nicely to the next valve state.
     actuationTimer += DELAY;
 
 
     if (actuationTimer >= ACTUATION_SEPARATION) {
         actuationTimer = 0;
-        stateIsDirty = stateTracker->ease();
+        if (stateTracker->ease()) {
+            stateIsDirty = true;
+        }
     }
 
 
@@ -159,6 +161,7 @@ void globalProcess() {
         //Save network traffic by not updating if nothing's changed.
         if (stateIsDirty) {
             sendStateToFountain();
+            stateIsDirty = false;
         }
     }
 }
