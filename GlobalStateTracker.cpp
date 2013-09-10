@@ -18,7 +18,7 @@ using namespace std;
 //Here is the master list of all the state variables the native server keeps
 //track of. Some of these may be loaded from disk upon creation of this object,
 //but these should all be accounted for in your serialize method!
-string controlState = "Unassigned";
+string controlState = "Default Control";
 
 int nextValveState = 0; //Whatever we *want* the next state to be. This will be
 //updated asynchronously via API requests and whatnot,
@@ -50,6 +50,8 @@ void GlobalStateTracker::generateSerializedState() {
 
     streambuilder << "<valveState>" << valveState << "</><restrictState>" << restrictState << "</>";
 
+    streambuilder << "<fountainState>" << controlState << "</>";
+    
     builder = streambuilder.str();
     stateStringSize = builder.size();
 
