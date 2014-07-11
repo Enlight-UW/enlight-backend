@@ -34,19 +34,16 @@
 #include <iostream>
 #include <sstream>
 
-#include "UDPStack.h"
+#include "NetworkProcessor.h"
 #include "GlobalStateTracker.h"
 
 //We'll need the usleep function from unistd.h
 #include <unistd.h>
 
-//Platform-specific network implementation
-#include "UnixUDPStack.h"
-
 
 using namespace std;
 
-UDPStack* webfrontStack;
+NetworkProcessor* webfrontStack;
 GlobalStateTracker* stateTracker;
 
 char const* const SERVICE_MASTER_KEY =
@@ -300,7 +297,7 @@ int main(int argc, char** argv) {
     stateTracker = new GlobalStateTracker();
 
     cout << "Initializing UDP stack...\n";
-    webfrontStack = new UnixUDPStack(LISTEN_PORT);
+    webfrontStack = new NetworkProcessor(LISTEN_PORT);
 
     cout << "Entering main loop, listening on "
             << webfrontStack->getPort() << "...\n\n";
