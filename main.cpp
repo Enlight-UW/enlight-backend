@@ -8,9 +8,6 @@
  * listen/event cycle.
  */
 
-//Define this before compiling to target the Windows or Unix network stack.
-#define WINDOWS false
-
 //Official build number, useful to describe feature changes without having to
 //reference code hashes.
 #define BUILD   1
@@ -24,7 +21,7 @@
 //top of things there.
 #define DELAY 50
 
-//Even if a clock edge hits, no more than (ACTUATION_SEPARATION / CLOCK) valves
+//Even if a clock edge hwits, no more than (ACTUATION_SEPARATION / CLOCK) valves
 //will be moved to the nextState at once. With A_S and CLK of 200, this
 //means up to 5 valves per second will toggle.
 #define ACTUATION_SEPARATION 200
@@ -40,20 +37,12 @@
 #include "UDPStack.h"
 #include "GlobalStateTracker.h"
 
-
-//Windows vs Unix headers
-#if WINDOWS
-
-//We'll need the Sleep function from windows.h
-#include <windows.h>
-#else
-
 //We'll need the usleep function from unistd.h
 #include <unistd.h>
 
 //Platform-specific network implementation
 #include "UnixUDPStack.h"
-#endif
+
 
 using namespace std;
 
@@ -302,33 +291,6 @@ int main(int argc, char** argv) {
                 << ". CHANGE THE VALUE IN main.cpp NAMED SERVICE_MASTER_KEY!\n";
     }
 
-    //Check to see if this is a little endian platform...
-
-    union sizeCheck {
-        int readOut;
-        char bytes[4];
-    } check;
-
-    check.bytes[0] = 1;
-    check.bytes[1] = 0;
-    check.bytes[2] = 0;
-    check.bytes[3] = 0;
-
-    if (check.readOut != 1) {
-        cout << "This system is not little-endian. Not sure where you found it "
-                << "but please put it out of its misery and assimilate to the "
-                << "Intel master race... We've got cookies...\n";
-
-        //But really, little endian is better.
-        return 16777216;
-    }
-
-
-
-    //
-    // End of sanity check
-    //
-
 
     cout << "Enlight Fountain Backend\n";
     cout << "Build " << BUILD << "\n";
@@ -337,27 +299,8 @@ int main(int argc, char** argv) {
     cout << "Setting up default global state...\n";
     stateTracker = new GlobalStateTracker();
 
-#if WINDOWS
-    cout << "\nNo Windows implementation yet, sorry!\n";
-    cout << "If someone wants to make one, extend UDPStack and implement "
-            << "any virtual methods you see. Also, you may want to look at "
-            << "how I've done it in UnixUDPStack in order to get the "
-            << "socket listening in the constructor (use an initialization "
-            << "list to call UDPStack:: with your port number). Then just "
-            << "make sure you implement it such that you can peek at "
-            << "incoming packets without actually blocking if there's "
-            << "nothing there (important!) so that our no-thread model "
-            << "keeps working. Basically, it should be transparent as to "
-            << "whether the Unix or Windows stack is in use. I don't know "
-            << "why you'd want to write a separate Windows stack though, "
-            << "since the Unix one works just fine under Cygwin.";
-    return 1;
-#else
-    cout << "Initializing Unix UDP stack...\n";
+    cout << "Initializing UDP stack...\n";
     webfrontStack = new UnixUDPStack(LISTEN_PORT);
-
-#endif
-
 
     cout << "Entering main loop, listening on "
             << webfrontStack->getPort() << "...\n\n";
@@ -374,13 +317,8 @@ int main(int argc, char** argv) {
         //Do global processing.
         globalProcess();
 
-        //Sleep for the right amount of time based on the platform.
-#if WINDOWS
-        Sleep(DELAY);
-#else
-        //usleep(microseconds)
+        //Sleep for the right amount of time - usleep is microseconds.
         usleep(1000 * DELAY);
-#endif
     }
 
 
