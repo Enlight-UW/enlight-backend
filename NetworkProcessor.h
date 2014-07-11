@@ -25,6 +25,7 @@ class NetworkProcessor {
         virtual void checkAndHandlePackets(void (*handler)(char const*));
         virtual void sendData(char const*, unsigned int);
         virtual void sendDataToFountain(char const*, unsigned int);
+        int getPort() const;
     private:
         int sock;
         struct sockaddr_in siMe, siOther;
