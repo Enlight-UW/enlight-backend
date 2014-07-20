@@ -28,5 +28,6 @@ class NetworkProcessor {
         int getPort() const;
     private:
         int sock;
+		int port;
         struct sockaddr_in siMe, siOther;
 };
