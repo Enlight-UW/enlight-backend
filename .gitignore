@@ -4,3 +4,4 @@
 /dist/
 cygwin1.dll
 .idea
+*.pyc
