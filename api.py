@@ -1,4 +1,5 @@
 from bottle import error, get, post, run
+import sqlite3
 
 # ######################################################################################################################
 # Defaults and Errors
@@ -70,5 +71,17 @@ def gPatterns():
 def pPatternsID(id):
     return {'success': 'false', 'message': 'Not yet implemented.'}
 
+
+# ######################################################################################################################
+# Database Debugging
+# ######################################################################################################################
+
+@get('/db/drop')
+def gDBDrop():
+    return "ok"
+
+@get('/db/pop')
+def gDBPop():
+    return "ok"
 
 run(host='localhost', port=8080)
