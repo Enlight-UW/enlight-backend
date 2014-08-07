@@ -1,5 +1,5 @@
 from bottle import error, get, post, run
-import sqlite3
+import fountain
 
 # ######################################################################################################################
 # Defaults and Errors
@@ -80,8 +80,10 @@ def pPatternsID(id):
 def gDBDrop():
     return "ok"
 
+
 @get('/db/pop')
 def gDBPop():
     return "ok"
+
 
 run(host='localhost', port=8080)
