@@ -1,1 +1,1 @@
-DB_FILENAME = "maquina"
+DB_FILENAME = "maquina.sqlite"
