@@ -79,46 +79,76 @@ CREATE_TABLE_PATTERNDATA = """
 
 # ###############
 # Default values
+#
+# Eventually we'll be able to replace all the insert statements with a compound insert, but the version of SQLite3 lib
+# that comes with python doesn't support that syntax yet.
 # ###############
 
 # The default entries in the valves table. If a new valve is added to the fountain,
 # it should be added to this list.
 INSERT_DEFAULT_VALVES = """
-    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled)
-    VALUES
-        (1, 'V1', 'Vertical caliper jet 1', 0, 1),
-        (2, 'V2', 'Vertical caliper jet 2', 0, 1),
-        (3, 'V3', 'Vertical caliper jet 3', 0, 1),
-        (4, 'V4', 'Vertical caliper jet 4', 0, 1),
-        (5, 'V5', 'Vertical caliper jet 5', 0, 1),
-        (6, 'V6', 'Vertical caliper jet 6', 0, 1),
-        (7, 'V7', 'Vertical caliper jet 7', 0, 1),
-        (8, 'V8', 'Vertical caliper jet 8', 0, 1),
-        (9, 'V9', 'Vertical caliper jet 9', 0, 1),
-        (10, 'V10', 'Vertical caliper jet 10', 0, 1),
-        (11, 'VC', 'Vertical caliper jet center', 0, 1),
-        (12, 'VR', 'Vertical caliper jet ring', 0, 1),
-        (13, 'H1', 'Horizontal caliper jet 1 (pointed up)', 0, 1),
-        (14, 'H2', 'Horizontal caliper jet 2', 0, 1),
-        (15, 'H3', 'Horizontal caliper jet 3', 0, 1),
-        (16, 'H4', 'Horizontal caliper jet 4', 0, 1),
-        (17, 'H5', 'Horizontal caliper jet 5', 0, 1),
-        (18, 'H6', 'Horizontal caliper jet 6', 0, 1),
-        (19, 'H7', 'Horizontal caliper jet 7', 0, 1),
-        (20, 'H8', 'Horizontal caliper jet 8', 0, 1),
-        (21, 'H9', 'Horizontal caliper jet 9', 0, 1),
-        (22, 'H10', 'Horizontal caliper jet 10', 0, 1),
-        (23, 'HC', 'Horizontal caliper jet center', 0, 1),
-        (24, 'HR', 'Horizontal caliper jet ring', 0, 1)
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (1, 'V1', 'Vertical caliper jet 1', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (2, 'V2', 'Vertical caliper jet 2', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (3, 'V3', 'Vertical caliper jet 3', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (4, 'V4', 'Vertical caliper jet 4', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (5, 'V5', 'Vertical caliper jet 5', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (6, 'V6', 'Vertical caliper jet 6', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (7, 'V7', 'Vertical caliper jet 7', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (8, 'V8', 'Vertical caliper jet 8', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (9, 'V9', 'Vertical caliper jet 9', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (10, 'V10', 'Vertical caliper jet 10', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (11, 'VC', 'Vertical caliper jet center', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (12, 'VR', 'Vertical caliper jet ring', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (13, 'H1', 'Horizontal caliper jet 1 (pointed up)', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (14, 'H2', 'Horizontal caliper jet 2', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (15, 'H3', 'Horizontal caliper jet 3', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (16, 'H4', 'Horizontal caliper jet 4', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (17, 'H5', 'Horizontal caliper jet 5', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (18, 'H6', 'Horizontal caliper jet 6', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (19, 'H7', 'Horizontal caliper jet 7', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (20, 'H8', 'Horizontal caliper jet 8', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (21, 'H9', 'Horizontal caliper jet 9', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (22, 'H10', 'Horizontal caliper jet 10', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (23, 'HC', 'Horizontal caliper jet center', 0, 1);
+    INSERT OR IGNORE INTO valves (ID, name, description, spraying, enabled) VALUES
+        (24, 'HR', 'Horizontal caliper jet ring', 0, 1);
 """
+
 # Just some testing API keys. This will be removed in the future.
 INSERT_DEFAULT_TEST_KEYS = """
     INSERT INTO apikeys (apikey, name, priority, date) VALUES
-        ('abc123', 'Test API Key', 10, strftime('%s', 'now'),
-        ('pri20a', '20 Priority Test API Key 1', 20, strftime('%s', 'now'),
-        ('pri20b', '20 Priority Test API Key 2', 20, strftime('%s', 'now'),
-        ('pri30a', '30 Priority Test API Key 1', 30, strftime('%s', 'now'),
-        ('pri30b', '30 Priority Test API Key 2', 30, strftime('%s', 'now')
+        ('abc123', 'Test API Key', 10, strftime('%s', 'now'));
+    INSERT INTO apikeys (apikey, name, priority, date) VALUES
+        ('pri20a', '20 Priority Test API Key 1', 20, strftime('%s', 'now'));
+    INSERT INTO apikeys (apikey, name, priority, date) VALUES
+        ('pri20b', '20 Priority Test API Key 2', 20, strftime('%s', 'now'));
+    INSERT INTO apikeys (apikey, name, priority, date) VALUES
+        ('pri30a', '30 Priority Test API Key 1', 30, strftime('%s', 'now'));
+    INSERT INTO apikeys (apikey, name, priority, date) VALUES
+        ('pri30b', '30 Priority Test API Key 2', 30, strftime('%s', 'now'));
 """
 
 # ###
@@ -145,4 +175,14 @@ DROP_TABLE_PATTERNS = """
 
 DROP_TABLE_PATTERNDATA = """
     DROP TABLE patternData
+"""
+
+# ####
+# API queries
+# ####
+
+# Used to verify an API key exists.
+QUERY_API_KEY_COUNT = """
+    SELECT COUNT(*) as count FROM apikeys
+    WHERE apikey=:key
 """
