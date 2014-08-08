@@ -1,5 +1,6 @@
-from bottle import error, get, post, run
+from bottle import error, get, post, run, request
 import fountain
+import queries
 
 # ######################################################################################################################
 # Defaults and Errors
@@ -11,7 +12,33 @@ def error404(error):
 
 @get('/api')
 def gDefaultResponse():
+    checkAPIKey()
     return {'success': 'true', 'apiVersion': '1B'}
+
+
+# ###
+# Helper Functions
+# ###
+def log(msg):
+    "Prints a message alongside the IP of the client that generated it."
+    print('[' + request.remote_addr + '] ' + msg)
+
+def checkAPIKey():
+    "On a post request, we need to verify the API key."
+    if not 'apikey' in request.json.keys():
+        log('No API key with request.')
+        return False
+
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.QUERY_API_KEY_COUNT, {'key': request.json['apikey']})
+    
+    # This query is an aggregation - the number of matching keys. Should be > 0 (and probably 1).
+    r = c.fetchone()
+
+    isValid = True if r[0] == 1 else False
+    fountain.db_close(con)
+    return isValid
 
 # ######################################################################################################################
 # Authentication and Control
@@ -81,11 +108,14 @@ def pPatternsID(id):
 
 @get('/db/drop')
 def gDBDrop():
+    fountain.db_dropTables()
     return "ok"
 
 
 @get('/db/pop')
 def gDBPop():
+    fountain.db_createTables()
+    fountain.db_loadDefaults()
     return "ok"
 
 
