@@ -41,6 +41,7 @@ def db_loadDefaults():
     "Load the default valves and API test keys into the database."
     con = db_connect()
     c = con.cursor()
-    c.execute(queries.INSERT_DEFAULT_TEST_KEYS)
-    c.execute(queries.INSERT_DEFAULT_VALVES)
+    c.executescript(queries.INSERT_DEFAULT_TEST_KEYS)
+    c.executescript(queries.INSERT_DEFAULT_VALVES)
     db_close(con)
+
