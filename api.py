@@ -10,9 +10,10 @@ import queries
 def error404(error):
     return "404"
 
-@get('/api')
+@post('/api')
 def gDefaultResponse():
-    checkAPIKey()
+    "The default route for the API; returns the version number."
+    getAPIKeyPriority()
     return {'success': 'true', 'apiVersion': '1B'}
 
 
@@ -32,13 +33,30 @@ def checkAPIKey():
     con = fountain.db_connect()
     c = con.cursor()
     c.execute(queries.QUERY_API_KEY_COUNT, {'key': request.json['apikey']})
-    
-    # This query is an aggregation - the number of matching keys. Should be > 0 (and probably 1).
+    # This query is an aggregation (so don't need None check) - the number of matching keys. Should be > 0 (and probably 1).
     r = c.fetchone()
 
     isValid = True if r[0] == 1 else False
     fountain.db_close(con)
     return isValid
+
+def getAPIKeyPriority():
+    "Get the priority of the requesting key."
+    if not 'apikey' in request.json.keys():
+        log('No API key with request')
+        return 0
+
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.QUERY_API_KEY_PRIORITY, {'key': request.json['apikey']})
+
+    # We'll just get a single number back from this one.
+    r = c.fetchone()
+    if r is None:
+        log('No rows returned - invalid API key?')
+        return 0
+
+    return r[0]
 
 # ######################################################################################################################
 # Authentication and Control

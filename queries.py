@@ -183,6 +183,11 @@ DROP_TABLE_PATTERNDATA = """
 
 # Used to verify an API key exists.
 QUERY_API_KEY_COUNT = """
-    SELECT COUNT(*) as count FROM apikeys
+    SELECT COUNT(*) FROM apikeys
+    WHERE apikey=:key
+"""
+
+QUERY_API_KEY_PRIORITY = """
+    SELECT priority FROM apikeys
     WHERE apikey=:key
 """
