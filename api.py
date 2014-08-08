@@ -9,6 +9,9 @@ import fountain
 def error404(error):
     return "404"
 
+@get('/api')
+def gDefaultResponse():
+    return {'success': 'true', 'apiVersion': '1B'}
 
 # ######################################################################################################################
 # Authentication and Control
