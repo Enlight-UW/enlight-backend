@@ -25,7 +25,7 @@ def log(msg):
     print('[' + request.remote_addr + '] ' + msg)
 
 def checkAPIKey():
-    "On a post request, we need to verify the API key."
+    "Verifies the requesting API key. These need to be verified on POST requests."
     if not 'apikey' in request.json.keys():
         log('No API key with request.')
         return False
@@ -41,7 +41,7 @@ def checkAPIKey():
     return isValid
 
 def getAPIKeyPriority():
-    "Get the priority of the requesting key."
+    "Gets the priority of the requesting key."
     if not 'apikey' in request.json.keys():
         log('No API key with request')
         return 0
@@ -57,6 +57,9 @@ def getAPIKeyPriority():
         return 0
 
     return r[0]
+
+def getTrueQueuePosition():
+    "Taking into account priority and acquisition time"
 
 # ######################################################################################################################
 # Authentication and Control
