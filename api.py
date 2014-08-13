@@ -59,7 +59,9 @@ def getAPIKeyPriority():
     return r[0]
 
 def getTrueQueuePosition():
-    "Taking into account priority and acquisition time"
+    "Taking into account priority and acquisition time, determines the true queue position"
+
+
 
 # ######################################################################################################################
 # Authentication and Control
