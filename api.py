@@ -1,6 +1,7 @@
 from bottle import error, get, post, run, request
 import fountain
 import queries
+import constants
 
 # ######################################################################################################################
 # Defaults and Errors
@@ -62,8 +63,47 @@ def getAPIKeyPriority():
     return r[0]
 
 
-def getTrueQueuePosition():
+def getAPIKeyFail():
+    "Returns a dictionary containing a failure status and message indicating an API key authentication failure."
+    return {'success': 'false', 'message': 'Invalid API key.'}
+
+
+def jsonRow(cursor):
+    "Takes the next row from the cursor and formats it as a dictionary (JSON object as far as Bottle is concerned)."
+    fields = [f[0] for f in cursor.description]
+
+    r = cursor.fetchone()
+    if r is not None:
+        i = 0
+        newDict = {}
+        for f in fields:
+            newDict[f] = r[i]
+            i += 1
+        return newDict
+    else:
+        return None
+
+
+def jsonRows(cursor):
+    "Queries a cursor and returns its rows as a JSON response (a list of dictionaries contained in a JSON object)."
+    responseDict = {'success': 'true', 'items': []}
+
+    if cursor is None:
+        return responseDict
+
+    jr = jsonRow(cursor)
+
+    while jr is not None:
+        responseDict['items'].append(jr)
+        jr = jsonRow(cursor)
+
+    return responseDict
+
+
+def getTrueQueuePosition(controllerID):
     "Taking into account priority and acquisition time, determines the true queue position"
+    # TODO: Figure out this priority-based logic... Basically need to sum up all the queue positions above us in priority
+    return -1
 
 
 # ######################################################################################################################
@@ -72,22 +112,71 @@ def getTrueQueuePosition():
 
 @get('/api/control/query')
 def gQueryControl():
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Returns the current control queue."
+
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.QUERY_CONTROL_QUEUE)
+
+    res = jsonRows(c)
+
+    fountain.db_close(con)
+    return res
 
 
 @post('/api/control/query')
 def pQueryControl():
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Returns info about the 'true' queue position of this controllerID. If this is 0, you are in control."
+    if not checkAPIKey():
+        return getAPIKeyFail()
+    if not 'controllerID' in request.json.keys():
+        return {'success': 'false', 'message': 'Must specify controllerID to query.'}
+
+    # TODO: Implement ETA too
+    return {'success': 'true', 'trueQueuePosition': getTrueQueuePosition(request.json['controllerID']), 'eta': '15'}
 
 
 @post('/api/control/request')
 def pRequestControl():
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    """
+    Requests control for an API key and returns a controllerID to the user which they should watch to see when they gain
+    control.
+    """
+    if not checkAPIKey():
+        return getAPIKeyFail()
+
+    if not 'requestedLength' in request.json.keys():
+        return {'success': 'false', 'Message': 'Must specify requested length for control.'}
+
+    con = fountain.db_connect()
+    c = con.cursor()
+
+    c.execute(queries.REQUEST_CONTROL, {'priority': getAPIKeyPriority(), 'ttl': request.json['requestedLength'],
+                                        'apikey': request.json['apikey']})
+
+    # No concurrency worries with lastrowid, I think, as it's per-connection.
+    controllerID = c.lastrowid
+    fountain.db_close(con)
+
+    # TODO: Implement variable length TTL part and some additional sanity checks.
+    return {'success': 'true', 'ttl': request.json['requestedLength'], 'controllerID': controllerID}
 
 
 @post('/api/control/release')
 def pReleaseControl():
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Releases the control from a specific controllerID."
+    if not checkAPIKey():
+        return getAPIKeyFail()
+
+    if not 'controllerID' in request.json.keys():
+        return {'success': 'false', 'message': 'Must specify controllerID to release.'}
+
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.RELEASE_CONTROL, {'controllerID': request.json['controllerID']})
+    fountain.db_close(con)
+
+    return {'success': 'true', 'message': 'Control released.'}
 
 
 # ######################################################################################################################
@@ -96,22 +185,77 @@ def pReleaseControl():
 
 @get('/api/valves')
 def gValves():
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Queries the valve descriptions and current valve states."
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.QUERY_VALVES)
+
+    res = jsonRows(c)
+
+    fountain.db_close(con)
+    return res
 
 
 @post('/api/valves')
 def pValves():
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Updates the valves based on a bitmask."
+    if not checkAPIKey():
+        return getAPIKeyFail()
+
+    if not 'controllerID' in request.json.keys():
+        return {'success': 'false', 'message': 'Must specify controllerID to set valves.'}
+
+    if not 'bitmask' in request.json.keys():
+        return {'success': 'false', 'message': 'Must specify bitmask to set valves.'}
+
+    bm = request.json['bitmask']  # Store bitmask so we can shift it around while reading out the valve states
+    con = fountain.db_connect()
+    c = con.cursor()
+
+    for i in range(1, constants.NUM_VALVES + 1):
+        val = bm & 1
+        c.execute(queries.SET_VALVE, {'spraying': val, 'id': i})
+        bm >>= 1
+
+    fountain.db_close(con)
+    return {'success': 'true'}
 
 
 @get('/api/valves/<id>')
 def gValvesID(id):
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Queries a specific valve."
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.QUERY_VALVE, {'id': id})
+
+    res = jsonRow(c)
+
+    fountain.db_close(con)
+
+    if res is None or len(res) == 0:
+        return {'success': 'false', 'message': 'Invalid valve ID.'}
+    else:
+        return res
 
 
 @post('/api/valves/<id>')
 def pValvesID(id):
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Updates a single valve based on ID."
+    if not checkAPIKey():
+        return getAPIKeyFail()
+
+    if not 'controllerID' in request.json.keys():
+        return {'success': 'false', 'message': 'Must specify controllerID to set valves.'}
+
+    if not 'spraying' in request.json.keys():
+        return {'success': 'false', 'message': 'Must specify spraying value to set.'}
+
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.SET_VALVE, {'spraying': request.json['spraying'], 'id': id})
+    fountain.db_close(con)
+
+    return {'success': 'true'}
 
 
 # ######################################################################################################################
@@ -120,12 +264,35 @@ def pValvesID(id):
 
 @get('/api/patterns')
 def gPatterns():
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Queries the known, enabled patterns."
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.QUERY_PATTERNS)
+
+    res = jsonRows(c)
+
+    fountain.db_close(con)
+    return res
 
 
 @post('/api/patterns/<id>')
 def pPatternsID(id):
-    return {'success': 'false', 'message': 'Not yet implemented.'}
+    "Sets a specific pattern to active."
+    if not checkAPIKey():
+        return getAPIKeyFail()
+
+    if not 'controllerID' in request.json.keys():
+        return {'success': 'false', 'Need to provide controllerID.'}
+
+    # TODO: check for control
+    # TODO: also disengage other patterns from playing (probably a separate query to run before this one)
+
+    con = fountain.db_connect()
+    c = con.cursor()
+    c.execute(queries.ENGAGE_PATTERN, {'id': id})
+    fountain.db_close(con)
+
+    return {'success': 'true'}
 
 
 # ######################################################################################################################
@@ -145,6 +312,7 @@ def gDBPop():
     return "ok"
 
 
-def start():
+def startAPI():
     "Starts the server API."
+    print("API hook started...")
     run(host='localhost', port=8080)
