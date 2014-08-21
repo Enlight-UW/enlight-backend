@@ -10,6 +10,7 @@ import queries
 def error404(error):
     return "404"
 
+
 @post('/api')
 def gDefaultResponse():
     "The default route for the API; returns the version number."
@@ -23,6 +24,7 @@ def gDefaultResponse():
 def log(msg):
     "Prints a message alongside the IP of the client that generated it."
     print('[' + request.remote_addr + '] ' + msg)
+
 
 def checkAPIKey():
     "Verifies the requesting API key. These need to be verified on POST requests."
@@ -39,6 +41,7 @@ def checkAPIKey():
     isValid = True if r[0] == 1 else False
     fountain.db_close(con)
     return isValid
+
 
 def getAPIKeyPriority():
     "Gets the priority of the requesting key."
@@ -58,9 +61,9 @@ def getAPIKeyPriority():
 
     return r[0]
 
+
 def getTrueQueuePosition():
     "Taking into account priority and acquisition time, determines the true queue position"
-
 
 
 # ######################################################################################################################
@@ -142,4 +145,6 @@ def gDBPop():
     return "ok"
 
 
-run(host='localhost', port=8080)
+def start():
+    "Starts the server API."
+    run(host='localhost', port=8080)
