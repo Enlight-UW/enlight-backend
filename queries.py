@@ -191,3 +191,67 @@ QUERY_API_KEY_PRIORITY = """
     SELECT priority FROM apikeys
     WHERE apikey=:key
 """
+
+# Gets the current control queue.
+QUERY_CONTROL_QUEUE = """
+    SELECT controllerID, acquire, ttl, priority, queuePosition, apikey
+    FROM controlQueue
+    -- WHERE (acquire + ttl) > strftime('%s', 'now')
+"""
+
+# Requests control by adding an entry to the queue. All entries will initially have position -1 until scheduled by the
+# background job - this will make the SQL query simpler. The acquire time will also be set to -1 until it is scheduled.
+# This way, it is easy to determine if a controller has finished by adding acquire + ttl and checking against current
+# time.
+REQUEST_CONTROL = """
+    INSERT INTO controlQueue (priority, acquire, ttl, queuePosition, apikey)
+    VALUES (
+        :priority,
+        -1,
+        :ttl,
+        -1,
+        :apikey
+    )
+"""
+
+# Releases the control of a specific user.
+RELEASE_CONTROL = """
+    UPDATE controlQueue
+    SET ttl = 0
+    WHERE controllerID=:controllerID
+"""
+
+
+# Get a list of the valves and their states.
+QUERY_VALVES = """
+    SELECT ID, name, description, spraying, enabled
+    FROM valves
+"""
+
+# Query a singular valve.
+QUERY_VALVE = """
+    SELECT ID, name, description, spraying, enabled
+    FROM valves
+    WHERE ID=:id
+"""
+
+# Query the known, enabled patterns.
+QUERY_PATTERNS = """
+    SELECT ID, name, active, description
+    FROM patterns
+    WHERE enabled<>0
+"""
+
+# Engages a pattern by setting it to active.
+ENGAGE_PATTERN = """
+    UPDATE patterns
+    SET active=1
+    WHERE ID=:id and enabled<>0
+"""
+
+# Updates the spraying status of a particular valve.
+SET_VALVE = """
+    UPDATE valves
+    SET spraying=:spraying
+    WHERE ID=:id AND enabled<>0
+"""
