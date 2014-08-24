@@ -282,7 +282,7 @@ def pPatternsID(id):
         return getAPIKeyFail()
 
     if not 'controllerID' in request.json.keys():
-        return {'success': 'false', 'Need to provide controllerID.'}
+        return {'success': 'false', 'message': 'Need to provide controllerID.'}
 
     # TODO: check for control
     # TODO: also disengage other patterns from playing (probably a separate query to run before this one)
