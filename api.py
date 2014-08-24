@@ -14,7 +14,7 @@ def error404(error):
 
 @post('/api')
 def gDefaultResponse():
-    "The default route for the API; returns the version number."
+    """The default route for the API; returns the version number."""
     getAPIKeyPriority()
     return {'success': 'true', 'apiVersion': '1B'}
 
@@ -23,12 +23,12 @@ def gDefaultResponse():
 # Helper Functions
 # ###
 def log(msg):
-    "Prints a message alongside the IP of the client that generated it."
+    """Prints a message alongside the IP of the client that generated it."""
     print('[' + request.remote_addr + '] ' + msg)
 
 
 def checkAPIKey():
-    "Verifies the requesting API key. These need to be verified on POST requests."
+    """Verifies the requesting API key. These need to be verified on POST requests."""
     if not 'apikey' in request.json.keys():
         log('No API key with request.')
         return False
@@ -45,7 +45,7 @@ def checkAPIKey():
 
 
 def getAPIKeyPriority():
-    "Gets the priority of the requesting key."
+    """Gets the priority of the requesting key."""
     if not 'apikey' in request.json.keys():
         log('No API key with request')
         return 0
@@ -64,12 +64,12 @@ def getAPIKeyPriority():
 
 
 def getAPIKeyFail():
-    "Returns a dictionary containing a failure status and message indicating an API key authentication failure."
+    """Returns a dictionary containing a failure status and message indicating an API key authentication failure."""
     return {'success': 'false', 'message': 'Invalid API key.'}
 
 
 def jsonRow(cursor):
-    "Takes the next row from the cursor and formats it as a dictionary (JSON object as far as Bottle is concerned)."
+    """Takes the next row from the cursor and formats it as a dictionary (JSON object as far as Bottle is concerned)."""
     fields = [f[0] for f in cursor.description]
 
     r = cursor.fetchone()
@@ -85,7 +85,7 @@ def jsonRow(cursor):
 
 
 def jsonRows(cursor):
-    "Queries a cursor and returns its rows as a JSON response (a list of dictionaries contained in a JSON object)."
+    """Queries a cursor and returns its rows as a JSON response (a list of dictionaries contained in a JSON object)."""
     responseDict = {'success': 'true', 'items': []}
 
     if cursor is None:
@@ -101,7 +101,7 @@ def jsonRows(cursor):
 
 
 def getTrueQueuePosition(controllerID):
-    "Taking into account priority and acquisition time, determines the true queue position"
+    """Taking into account priority and acquisition time, determines the true queue position"""
     # TODO: Figure out this priority-based logic... Basically need to sum up all the queue positions above us in priority
     return -1
 
@@ -112,7 +112,7 @@ def getTrueQueuePosition(controllerID):
 
 @get('/api/control/query')
 def gQueryControl():
-    "Returns the current control queue."
+    """Returns the current control queue."""
 
     con = fountain.db_connect()
     c = con.cursor()
@@ -126,7 +126,7 @@ def gQueryControl():
 
 @post('/api/control/query')
 def pQueryControl():
-    "Returns info about the 'true' queue position of this controllerID. If this is 0, you are in control."
+    """Returns info about the 'true' queue position of this controllerID. If this is 0, you are in control."""
     if not checkAPIKey():
         return getAPIKeyFail()
     if not 'controllerID' in request.json.keys():
@@ -164,7 +164,7 @@ def pRequestControl():
 
 @post('/api/control/release')
 def pReleaseControl():
-    "Releases the control from a specific controllerID."
+    """Releases the control from a specific controllerID."""
     if not checkAPIKey():
         return getAPIKeyFail()
 
@@ -185,7 +185,7 @@ def pReleaseControl():
 
 @get('/api/valves')
 def gValves():
-    "Queries the valve descriptions and current valve states."
+    """Queries the valve descriptions and current valve states."""
     con = fountain.db_connect()
     c = con.cursor()
     c.execute(queries.QUERY_VALVES)
@@ -198,7 +198,7 @@ def gValves():
 
 @post('/api/valves')
 def pValves():
-    "Updates the valves based on a bitmask."
+    """Updates the valves based on a bitmask."""
     if not checkAPIKey():
         return getAPIKeyFail()
 
@@ -223,7 +223,7 @@ def pValves():
 
 @get('/api/valves/<id>')
 def gValvesID(id):
-    "Queries a specific valve."
+    """Queries a specific valve."""
     con = fountain.db_connect()
     c = con.cursor()
     c.execute(queries.QUERY_VALVE, {'id': id})
@@ -240,7 +240,7 @@ def gValvesID(id):
 
 @post('/api/valves/<id>')
 def pValvesID(id):
-    "Updates a single valve based on ID."
+    """Updates a single valve based on ID."""
     if not checkAPIKey():
         return getAPIKeyFail()
 
@@ -264,7 +264,7 @@ def pValvesID(id):
 
 @get('/api/patterns')
 def gPatterns():
-    "Queries the known, enabled patterns."
+    """Queries the known, enabled patterns."""
     con = fountain.db_connect()
     c = con.cursor()
     c.execute(queries.QUERY_PATTERNS)
@@ -277,7 +277,7 @@ def gPatterns():
 
 @post('/api/patterns/<id>')
 def pPatternsID(id):
-    "Sets a specific pattern to active."
+    """Sets a specific pattern to active."""
     if not checkAPIKey():
         return getAPIKeyFail()
 
@@ -301,18 +301,20 @@ def pPatternsID(id):
 
 @get('/db/drop')
 def gDBDrop():
+    """Drop the known tables in the database."""
     fountain.db_dropTables()
     return "ok"
 
 
 @get('/db/pop')
 def gDBPop():
+    """Populate the database with the default values."""
     fountain.db_createTables()
     fountain.db_loadDefaults()
     return "ok"
 
 
 def startAPI():
-    "Starts the server API."
+    """Starts the server API."""
     print("API hook started...")
     run(host='localhost', port=8080)

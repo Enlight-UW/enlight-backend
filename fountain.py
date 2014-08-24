@@ -6,17 +6,17 @@ import queries
 import constants
 
 def db_connect():
-    "Opens a connection to the database and returns the connection object."
+    """Opens a connection to the database and returns the connection object."""
     return sqlite3.connect(constants.DB_FILENAME)
 
 def db_close(con):
-    "Closes any open connection to the database."
+    """Closes any open connection to the database."""
     # I guess every connection with the DB-API 2.0 bindings is treated like a transaction, so commit it.
     con.commit()
     con.close()
 
 def db_createTables():
-    "Creates the default tables in the database."
+    """Creates the default tables in the database."""
     con = db_connect()
     c = con.cursor()
     c.execute(queries.CREATE_TABLE_APIKEYS)
@@ -27,7 +27,7 @@ def db_createTables():
     db_close(con)
     
 def db_dropTables():
-    "Drops all the known tables in the database, useful for debugging."
+    """Drops all the known tables in the database, useful for debugging."""
     con = db_connect()
     c = con.cursor()
     c.execute(queries.DROP_TABLE_APIKEYS)
@@ -38,7 +38,7 @@ def db_dropTables():
     db_close(con)
 
 def db_loadDefaults():
-    "Load the default valves and API test keys into the database."
+    """Load the default valves and API test keys into the database."""
     con = db_connect()
     c = con.cursor()
     c.executescript(queries.INSERT_DEFAULT_TEST_KEYS)
