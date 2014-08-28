@@ -293,3 +293,10 @@ SET_CONTROL_ACQUIRED_TIME_TO_NOW = """
     SET acquire=strftime('%s','now')
     WHERE controllerID=:controllerID
 """
+
+# Used for finding the top queue which should be served.
+FIND_MAX_PRIORITY_IN_QUEUE = """
+    SELECT MAX(priority)
+    FROM controlQueue
+    WHERE queuePosition > -1
+"""

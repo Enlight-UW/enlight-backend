@@ -68,7 +68,6 @@ def backgroundProcessing():
                     if max is None or max < 0:
                         max = -1
 
-                    print(max)
                     nextQueuePositionForPriority[row[1]] = max + 1
 
             # Now, while incrementing the next queue positions, add these things to the database.
@@ -83,13 +82,26 @@ def backgroundProcessing():
 
                 nextQueuePositionForPriority[row[1]] += 1
 
-        # TODO: Check if currently running request needs to be booted out due to either expiring or a higher priority
-        # request, and if so, update queuePosition and acquire times on all affected requests.
+        # Check if currently running request needs to be booted out due to either expiring or a higher priority request,
+        # and if so, update queuePosition and acquire times on all affected requests.
         # If a request becomes invalid, set its TTL to 0 and queuePosition to -2.
 
+        # First, find the controller who is currently in control. Find highest priority, and then check that queue.
+        c.execute(queries.FIND_MAX_PRIORITY_IN_QUEUE)
+        max = c.fetchone()[0]
 
-        # TODO: Here is where we'd check if a pattern is running and increment that pattern, and then either way send the
-        # new states to the cRIO. Also performs other database tasks like scheduling jobs in the control request queue.
+        queueEmpty = False
+        if max is None:
+            # Nothing's in the queue!
+            queueEmpty = True
+
+        # TODO: check the time on the 0th item in this queue to see if it's still valid
+
+        # TODO: If nothing is in the control queue, resume or start whatever pattern is currently playing.
+        if queueEmpty:
+
+
+        # TODO: Send valve data to cRIO
 
         fountain.db_close(con)
 
