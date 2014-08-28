@@ -55,8 +55,14 @@ def backgroundProcessing():
 
         for row in c.fetchall():
             print(row)
+            # TODO: add to appropriate queue and set queue position
 
         fountain.db_close(con)
+
+
+        # TODO: Check if currently running request needs to be booted out due to either expiring or a higher priority
+        # request, and if so, update queuePosition and acquire times on all affected requests.
+        # If a request becomes invalid, set its TTL to 0 and queuePosition to -2.
 
         # TODO: Here is where we'd check if a pattern is running and increment that pattern, and then either way send the
         # new states to the cRIO. Also performs other database tasks like scheduling jobs in the control request queue.
