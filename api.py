@@ -3,6 +3,9 @@ import fountain
 import queries
 import constants
 
+# This is the database lock which we'll share with the background process.
+dbmtx = None
+
 # ######################################################################################################################
 # Defaults and Errors
 # ######################################################################################################################
@@ -317,4 +320,4 @@ def gDBPop():
 def startAPI():
     """Starts the server API."""
     print("API hook started...")
-    run(host='localhost', port=8080)
+    run(host='localhost', port=8081)

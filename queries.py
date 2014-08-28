@@ -158,23 +158,23 @@ INSERT_DEFAULT_TEST_KEYS = """
 # ###
 
 DROP_TABLE_APIKEYS = """
-    DROP TABLE apikeys
+    DROP TABLE IF EXISTS apikeys
 """
 
 DROP_TABLE_CONTROLQUEUE = """
-    DROP TABLE controlQueue
+    DROP TABLE IF EXISTS controlQueue
 """
 
 DROP_TABLE_VALVES = """
-    DROP TABLE valves
+    DROP TABLE IF EXISTS valves
 """
 
 DROP_TABLE_PATTERNS = """
-    DROP TABLE patterns
+    DROP TABLE IF EXISTS patterns
 """
 
 DROP_TABLE_PATTERNDATA = """
-    DROP TABLE patternData
+    DROP TABLE IF EXISTS patternData
 """
 
 # ####
@@ -254,4 +254,20 @@ SET_VALVE = """
     UPDATE valves
     SET spraying=:spraying
     WHERE ID=:id AND enabled<>0
+"""
+
+# ######################################################################################################################
+# Background processing queries.
+# ######################################################################################################################
+
+# The background processing should not start until the controlQueue actually exists, so wait until it does.
+CHECK_IF_CONTROL_QUEUE_EXISTS = """
+    SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='controlQueue'
+"""
+
+# Discover requests that have been made, but not yet sorted into the control queue.
+FIND_PENDING_CONTROL_REQUESTS = """
+    SELECT controllerID, priority
+    FROM controlQueue
+    WHERE queuePosition = -1
 """
