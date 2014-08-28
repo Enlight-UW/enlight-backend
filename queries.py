@@ -271,3 +271,25 @@ FIND_PENDING_CONTROL_REQUESTS = """
     FROM controlQueue
     WHERE queuePosition = -1
 """
+
+# Discover the current maximum position among active records in the controlQueue of a certain priority. Needs to be
+# where queuePosition > -2 because we don't want to look at expired records.
+FIND_MAX_QUEUE_POSITION_FOR_PRIORITY = """
+    SELECT MAX(queuePosition)
+    FROM controlQueue
+    WHERE priority=:priority AND queuePosition > -2
+"""
+
+# Updates a control request's queue position. (Like scheduling it from -1 to an actual position.)
+QUEUE_PENDING_CONTROL_REQUEST = """
+    UPDATE controlQueue
+    SET queuePosition=:queuePosition
+    WHERE controllerID=:controllerID
+"""
+
+# Updates a controllerID by setting its acquired time.
+SET_CONTROL_ACQUIRED_TIME_TO_NOW = """
+    UPDATE controlQueue
+    SET acquire=strftime('%s','now')
+    WHERE controllerID=:controllerID
+"""

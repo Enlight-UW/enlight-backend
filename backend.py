@@ -53,19 +53,46 @@ def backgroundProcessing():
         c = con.cursor()
         c.execute(queries.FIND_PENDING_CONTROL_REQUESTS)
 
-        for row in c.fetchall():
-            print(row)
-            # TODO: add to appropriate queue and set queue position
+        rows = c.fetchall()
 
-        fountain.db_close(con)
+        # Only bother if there are actually rows..
+        if len(rows) > 0:
 
+            # Find maximum queue position for each priority. The queue position is the 1th entry in the row.
+            nextQueuePositionForPriority = {}
+            for row in rows:
+                if not row[1] in nextQueuePositionForPriority.keys():
+                    c.execute(queries.FIND_MAX_QUEUE_POSITION_FOR_PRIORITY, {'priority': row[1]})
+                    max = c.fetchone()[0]
+
+                    if max is None or max < 0:
+                        max = -1
+
+                    print(max)
+                    nextQueuePositionForPriority[row[1]] = max + 1
+
+            # Now, while incrementing the next queue positions, add these things to the database.
+            for row in rows:
+                print('Queueing cID ' + str(row[0]) + ' as position ' + str(nextQueuePositionForPriority[row[1]]) + ' in priority ' + str(row[1]) + ' queue.')
+
+                c.execute(queries.QUEUE_PENDING_CONTROL_REQUEST, {'controllerID': row[0], 'queuePosition': nextQueuePositionForPriority[row[1]]})
+
+                # If a controller becomes in control, set its acquired time to now.
+                if nextQueuePositionForPriority[row[1]] == 0:
+                    c.execute(queries.SET_CONTROL_ACQUIRED_TIME_TO_NOW, {'controllerID': row[0]})
+
+                nextQueuePositionForPriority[row[1]] += 1
 
         # TODO: Check if currently running request needs to be booted out due to either expiring or a higher priority
         # request, and if so, update queuePosition and acquire times on all affected requests.
         # If a request becomes invalid, set its TTL to 0 and queuePosition to -2.
 
+
         # TODO: Here is where we'd check if a pattern is running and increment that pattern, and then either way send the
         # new states to the cRIO. Also performs other database tasks like scheduling jobs in the control request queue.
+
+        fountain.db_close(con)
+
 
 
 # The backend is threaded - one thread (which we will start and spin off) takes care of the API hook
