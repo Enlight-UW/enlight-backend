@@ -72,9 +72,11 @@ def backgroundProcessing():
 
             # Now, while incrementing the next queue positions, add these things to the database.
             for row in rows:
-                print('Queueing cID ' + str(row[0]) + ' as position ' + str(nextQueuePositionForPriority[row[1]]) + ' in priority ' + str(row[1]) + ' queue.')
+                print('Queueing cID ' + str(row[0]) + ' as position ' + str(
+                    nextQueuePositionForPriority[row[1]]) + ' in priority ' + str(row[1]) + ' queue.')
 
-                c.execute(queries.QUEUE_PENDING_CONTROL_REQUEST, {'controllerID': row[0], 'queuePosition': nextQueuePositionForPriority[row[1]]})
+                c.execute(queries.QUEUE_PENDING_CONTROL_REQUEST,
+                          {'controllerID': row[0], 'queuePosition': nextQueuePositionForPriority[row[1]]})
 
                 # If a controller becomes in control, set its acquired time to now.
                 if nextQueuePositionForPriority[row[1]] == 0:
@@ -98,13 +100,12 @@ def backgroundProcessing():
         # TODO: check the time on the 0th item in this queue to see if it's still valid
 
         # TODO: If nothing is in the control queue, resume or start whatever pattern is currently playing.
-        if queueEmpty:
+        # if queueEmpty:
 
 
         # TODO: Send valve data to cRIO
 
         fountain.db_close(con)
-
 
 
 # The backend is threaded - one thread (which we will start and spin off) takes care of the API hook
