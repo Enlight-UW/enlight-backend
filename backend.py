@@ -1,10 +1,11 @@
 import constants
 import fountain
+
 import queries
 import sys
 from multiprocessing import Process
 from api import startAPI
-from time import sleep
+from time import sleep, time
 
 
 def backgroundProcessing():
@@ -75,7 +76,7 @@ def backgroundProcessing():
                 print('Queueing cID ' + str(row[0]) + ' as position ' + str(
                     nextQueuePositionForPriority[row[1]]) + ' in priority ' + str(row[1]) + ' queue.')
 
-                c.execute(queries.QUEUE_PENDING_CONTROL_REQUEST,
+                c.execute(queries.SET_QUEUE_POSITION,
                           {'controllerID': row[0], 'queuePosition': nextQueuePositionForPriority[row[1]]})
 
                 # If a controller becomes in control, set its acquired time to now.
@@ -97,9 +98,65 @@ def backgroundProcessing():
             # Nothing's in the queue!
             queueEmpty = True
 
-        # TODO: check the time on the 0th item in this queue to see if it's still valid
+        # See if there's a 0th-position item in this queue. If so, check the time to make sure it's still valid. If it's
+        # not, or there is no such item, go through the rest of this queue until we find a valid record to set as the
+        # new controller. If we can't find one (because we run out or a bunch of TTL = 0 records exist), drop down to the
+        # next priority level and start from there (i.e. re-call the max priority finding query). If we have run out of
+        # control requests completely, set queueEmpty to True so the defailt patterns can engage.
+        discoveringInvalidItems = True  # At first glance seems unnecessary, but there could be junk records (TTL = 0)
+        while discoveringInvalidItems and not queueEmpty:
+            # During this loop, we might have to drop down a priority level. We might even run out of valid items
+            # entirely - in which case we'll need to set queueEmpty to true.
 
+            # We need to check the queue of valid items at the maximum priority level.
+            for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': max}):
+                # These are ordered with the highest priority first. Check the times until we find a valid item. If we
+                # find an invalid item, set its queuePosition to -2 and set the next valid item in the queue to position
+                # 0, with an acquire time of now. Astute readers will note that this will result in non-contiguous
+                # queuePositions for the requests, but this does not matter as we treat the request list as a queue,
+                # only adding items to the max + 1 and only taking items off the front.
+
+                # First, check if it's queuePosition is 0. If it's not, it likely has an acquire time of -1 and needs to
+                # be scheduled anyway (providing its TTL > 0, otherwise kill that record). We could run into records
+                # waiting in the queue whose owners have released control (given up on) and their TTLs will be 0.
+                if row[2] == 0:
+                    # Currently in control, check its validity.
+                    if row[0] + row[1] > time.time():
+                        # Still valid
+                        discoveringInvalidItems = False
+                        break
+                    else:
+                        # Invalid, need to clear it and continue.
+
+                        # XXX: So, this is a query modifying the controlQueue while we're currently iterating through it
+                        # I don't know if Python/SQLite bindings are smart enough to figure this one out, it might be a
+                        # problem...
+                        c.execute(queries.SET_QUEUE_POSITION, {'controllerID': row[3], 'queuePosition': -2})
+
+                        # Drop out to the for loop and we'll now find some non-0 position items which will be promoted.
+                        continue #  TODO: If it does work, this is really easy. If not, that's a lot more work.
+                else:
+                    # Check that this item at least has a TTL > 0
+                    if not row[1] > 0:
+                        # Done with that request...
+                        c.execute(queries.SET_QUEUE_POSITION, {'controllerID': row[3], 'queuePosition': -2})
+                        continue
+
+                    # This item needs to be promoted to the front of the queue.
+                    c.execute(queries.SET_QUEUE_POSITION, {'controllerID': row[3], 'queuePosition': 0})
+                    discoveringInvalidItems = False
+                    break
+
+            # Now, since we got here, we know that we haven't found a valid item at this priority, having gone through
+            # all of them. We need to drop down to the next priority level, or decide that we're completely done if we
+            # have exhausted all priority levels in the queue.
+            # TODO
+
+            # TODO: Make sure that long paragraph is implemented properly.
+
+        # TODO: find out what's in control
         # TODO: If nothing is in the control queue, resume or start whatever pattern is currently playing.
+
         # if queueEmpty:
 
 

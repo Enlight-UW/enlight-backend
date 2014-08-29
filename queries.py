@@ -281,7 +281,7 @@ FIND_MAX_QUEUE_POSITION_FOR_PRIORITY = """
 """
 
 # Updates a control request's queue position. (Like scheduling it from -1 to an actual position.)
-QUEUE_PENDING_CONTROL_REQUEST = """
+SET_QUEUE_POSITION = """
     UPDATE controlQueue
     SET queuePosition=:queuePosition
     WHERE controllerID=:controllerID
@@ -300,3 +300,12 @@ FIND_MAX_PRIORITY_IN_QUEUE = """
     FROM controlQueue
     WHERE queuePosition > -1
 """
+
+# Get a list of controllerIDs waiting in a certain priority queue, in the order that they should be served.
+GET_QUEUE_AT_PRIORITY = """
+    SELECT acquire, ttl, queuePosition, controllerID
+    FROM controlQueue
+    WHERE queuePosition > -1 AND priority=:priority
+    ORDER BY queuePosition ASC
+"""
+
