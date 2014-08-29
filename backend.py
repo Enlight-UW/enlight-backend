@@ -150,15 +150,18 @@ def backgroundProcessing():
             # Now, since we got here, we know that we haven't found a valid item at this priority, having gone through
             # all of them. We need to drop down to the next priority level, or decide that we're completely done if we
             # have exhausted all priority levels in the queue.
-            # TODO
+            c.execute(queries.FIND_MAX_PRIORITY_IN_QUEUE)
+            max = c.fetchone()[0]
 
-            # TODO: Make sure that long paragraph is implemented properly.
+            if max is None:
+                # Nothing's in the queue!
+                queueEmpty = True
 
-        # TODO: find out what's in control
-        # TODO: If nothing is in the control queue, resume or start whatever pattern is currently playing.
-
-        # if queueEmpty:
-
+        # Advance patterns if nothing else is in control.
+        if queueEmpty:
+            # Default patterns should be able to run here
+            print('Resume or start pattern due to lack of other control')
+            # TODO: pattern stuff
 
         # TODO: Send valve data to cRIO
 
