@@ -109,7 +109,7 @@ def backgroundProcessing():
         while discoveringInvalidItems and controlledBy != -1:
             # During this loop, we might have to drop down a priority level. We might even run out of valid items
             # entirely - in which case we'll need to set controlledBy to -1.
-
+            print("!!! IN LOOP")
             # We need to check the queue of valid items at the maximum priority level.
             for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': max}):
                 # These are ordered with the highest priority first. Check the times until we find a valid item. If we
