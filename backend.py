@@ -82,6 +82,7 @@ def backgroundProcessing():
 
                 # If a controller becomes in control, set its acquired time to now.
                 if nextQueuePositionForPriority[row[1]] == 0:
+                    print('Setting acquire time to now for cID ' + str(row[0]))
                     c.execute(queries.SET_CONTROL_ACQUIRED_TIME_TO_NOW, {'controllerID': row[0]})
 
                 nextQueuePositionForPriority[row[1]] += 1

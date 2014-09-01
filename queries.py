@@ -298,7 +298,7 @@ SET_CONTROL_ACQUIRED_TIME_TO_NOW = """
 FIND_MAX_PRIORITY_IN_QUEUE = """
     SELECT MAX(priority)
     FROM controlQueue
-    WHERE queuePosition > -1
+    WHERE queuePosition > -2
 """
 
 # Get a list of controllerIDs waiting in a certain priority queue, in the order that they should be served.
