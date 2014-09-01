@@ -3,7 +3,7 @@ import fountain
 
 import queries
 import sys
-from multiprocessing import process
+from multiprocessing import Process
 from api import startAPI
 from time import sleep, time
 
