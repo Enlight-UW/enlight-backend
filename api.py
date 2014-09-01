@@ -33,14 +33,22 @@ def checkAPIKey():
         log('No API key with request.')
         return False
 
+    log("Checking API key: " + request.json['apikey'])
+
     con = fountain.db_connect()
     c = con.cursor()
     c.execute(queries.QUERY_API_KEY_COUNT, {'key': request.json['apikey']})
+
     # This query is an aggregation (so don't need None check) - the number of matching keys. Should be > 0 (and probably 1).
     r = c.fetchone()
 
     isValid = True if r[0] == 1 else False
     fountain.db_close(con)
+
+    if (isValid):
+        log("API key is valid.")
+    else:
+        log("Invalid API key.")
     return isValid
 
 
@@ -50,6 +58,7 @@ def getAPIKeyPriority():
         log('No API key with request')
         return 0
 
+    log('Getting priority for API key: ' + request.json['apikey'])
     con = fountain.db_connect()
     c = con.cursor()
     c.execute(queries.QUERY_API_KEY_PRIORITY, {'key': request.json['apikey']})
@@ -103,7 +112,7 @@ def jsonRows(cursor):
 def getTrueQueuePosition(controllerID):
     """Taking into account priority and acquisition time, determines the true queue position"""
     estimate = -1
-    print("Estimating queue position for cID " + str(controllerID))
+    log("Estimating queue position for cID " + str(controllerID))
 
     # This will look very similar to the code in the background processing script, but here we'll be counting how many
     # controllerIDs are ahead of us.
@@ -121,10 +130,10 @@ def getTrueQueuePosition(controllerID):
             if row[3] == controllerID:
                 # Done!
                 fountain.db_close(con)
-                print("Determined estimate of " + str(estimate))
+                log("Determined estimate of " + str(estimate))
                 return estimate
 
-    print("Fell out of loop with estimate of " + str(estimate))
+    log("Fell out of loop with estimate of " + str(estimate))
     fountain.db_close(con)
     return estimate
 
@@ -342,4 +351,4 @@ def gDBPop():
 def startAPI():
     """Starts the server API."""
     print("API hook started...")
-    run(host='localhost', port=8081)
+    run(host='localhost', port=8082)
