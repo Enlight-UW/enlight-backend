@@ -2,6 +2,7 @@ from bottle import error, get, post, run, request
 import fountain
 import queries
 import constants
+from time import time
 
 # ######################################################################################################################
 # Defaults and Errors
@@ -101,6 +102,24 @@ def jsonRows(cursor):
 
     return responseDict
 
+def getTrueEta(controllerID):
+    """Assuming this controller were to be in position zero, about how long would it have control?"""
+    con = fountain.db_connect()
+    c = con.cursor()
+
+    ret = -2
+
+    for row in c.execute(queries.QUERY_CONTROL_QUEUE):
+        if row[0] != controllerID:
+            continue
+
+        if row[1] > 0:
+            ret = row[1] + row[2] - time()
+            break
+        else:
+            ret = 0
+
+    return ret
 
 def getTrueQueuePosition(controllerID):
     """Taking into account priority and acquisition time, determines the true queue position"""
@@ -171,7 +190,7 @@ def pQueryControl():
         return {'success': 'false', 'message': 'Must specify controllerID to query.'}
 
     # TODO: Implement ETA too
-    return {'success': 'true', 'trueQueuePosition': getTrueQueuePosition(request.json['controllerID']), 'eta': '15'}
+    return {'success': 'true', 'trueQueuePosition': getTrueQueuePosition(request.json['controllerID']), 'eta': getTrueEta(request.json['controllerID'])}
 
 
 @post('/api/control/request')
