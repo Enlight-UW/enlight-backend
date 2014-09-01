@@ -114,11 +114,11 @@ def getTrueQueuePosition(controllerID):
     # Check if we're even in the queue. If not, don't return anything.
     c.execute(queries.CHECK_IF_IM_IN_THE_QUEUE, {'controllerID': controllerID})
     r = c.fetchone()
-    
+
     if r[0] == 0:
         print ("Not even in the queue...")
         fountain.db_close(con)
-        return 0
+        return -2
 
     # We need to check the queue of valid items at the maximum priority level, and all these below it. Group the
     # priority levels and descend them to estimate how long it will be.
