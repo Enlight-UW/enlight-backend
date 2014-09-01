@@ -97,7 +97,6 @@ def backgroundProcessing():
 
         if max is None:
             # Nothing's in the queue!
-            print("!!!MAX IS NONE")
             controlledBy = -1
 
         # See if there's a 0th-position item in this queue. If so, check the time to make sure it's still valid. If it's
@@ -109,7 +108,7 @@ def backgroundProcessing():
         while discoveringInvalidItems:
             # During this loop, we might have to drop down a priority level. We might even run out of valid items
             # entirely - in which case we'll need to set controlledBy to -1.
-            print("!!! IN LOOP")
+
             # We need to check the queue of valid items at the maximum priority level.
             for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': max}):
                 # These are ordered with the highest priority first. Check the times until we find a valid item. If we
@@ -125,13 +124,13 @@ def backgroundProcessing():
                     # Currently in control, check its validity.
                     if row[0] + row[1] > time():
                         # Still valid, set this to be the controller
-                        print("controllerID " + str(row[3]) + " remains in control.")
+                        print("controllerID " + str(row[3]) + " remains in control for " + int(row[0] + row[1] - time()) + " seconds...")
                         controlledBy = row[3]
                         discoveringInvalidItems = False
                         break
                     else:
                         # Invalid, need to clear it and continue.
-
+                        print("controllerID " + str(row[3]) + " has expired, setting its queuePosition to -2.")
                         # XXX: So, this is a query modifying the controlQueue while we're currently iterating through it
                         # I don't know if Python/SQLite bindings are smart enough to figure this one out, it might be a
                         # problem...
@@ -160,14 +159,14 @@ def backgroundProcessing():
 
             if max is None:
                 # Nothing's in the queue!
-                print("Queue is empty, returning control to patterns.")
+                print("Queue is empty, letting the patterns run...")
                 controlledBy = -1
                 discoveringInvalidItems = False
 
         # Advance patterns if nothing else is in control.
         if controlledBy == -1:
             # Default patterns should be able to run here
-            print('Resume or start pattern due to lack of other control')
+            print('... increment pattern due to lack of other control')
             # TODO: pattern stuff
 
         # TODO: Send valve data to cRIO
