@@ -127,8 +127,10 @@ def getTrueQueuePosition(controllerID):
             # These are ordered with the highest priority first. Check the times until we find a valid item.
             estimate += 1
             print("Inner estimate loop")
-            
+
             # Need to count everything at each descending priority until we find our controllerID.
+            print(" COMPARE " + str(row[3]) + " to provided " + str(controllerID))
+            
             if row[3] == controllerID:
                 # Done!
                 fountain.db_close(con)
