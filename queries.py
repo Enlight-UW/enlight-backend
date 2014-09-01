@@ -317,3 +317,10 @@ GET_PRIORITY_LEVELS = """
     GROUP BY priority
     ORDER BY priority DESC
 """
+
+
+CHECK_IF_IM_IN_THE_QUEUE = """
+    SELECT COUNT(*)
+    FROM controlQueue
+    WHERE controllerID=:controllerID AND queuePosition > -1
+"""
