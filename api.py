@@ -129,6 +129,7 @@ def getTrueQueuePosition(controllerID):
 
             if row[3] == controllerID:
                 # Done!
+                estimate = row[2]  # TODO: TEMPORARY HACK BECAUSE THIS FUNCTION WASNT WOKRING ! THIS WONT WORK FOR MULTI LEVEL QUEUE
                 fountain.db_close(con)
                 return estimate  # We'll fall out of the loop due to closing the database on top of the iterator.
 
