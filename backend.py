@@ -124,7 +124,8 @@ def backgroundProcessing():
                     # Currently in control, check its validity.
                     if row[0] + row[1] > time():
                         # Still valid, set this to be the controller
-                        print("controllerID " + str(row[3]) + " remains in control for " + str  (row[0] + row[1] - time()) + " seconds...")
+                        print("controllerID " + str(row[3]) + " remains in control for " + str(
+                            row[0] + row[1] - time()) + " seconds...")
                         controlledBy = row[3]
                         discoveringInvalidItems = False
                         break
@@ -137,7 +138,7 @@ def backgroundProcessing():
                         c.execute(queries.SET_QUEUE_POSITION, {'controllerID': row[3], 'queuePosition': -2})
 
                         # Drop out to the for loop and we'll now find some non-0 position items which will be promoted.
-                        continue #  TODO: If it does work, this is really easy. If not, that's a lot more work.
+                        continue  # TODO: If it does work, this is really easy. If not, that's a lot more work.
                 else:
                     # Check that this item at least has a TTL > 0
                     if not row[1] > 0:
@@ -147,6 +148,7 @@ def backgroundProcessing():
 
                     # This item needs to be promoted to the front of the queue.
                     c.execute(queries.SET_QUEUE_POSITION, {'controllerID': row[3], 'queuePosition': 0})
+                    c.execute(queries.SET_CONTROL_ACQUIRED_TIME_TO_NOW, {'controllerID': row[3]})
                     print("New controllerID in control: " + str(row[3]))
                     discoveringInvalidItems = False
                     break
