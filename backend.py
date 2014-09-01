@@ -124,7 +124,7 @@ def backgroundProcessing():
                     # Currently in control, check its validity.
                     if row[0] + row[1] > time():
                         # Still valid, set this to be the controller
-                        print("controllerID " + str(row[3]) + " remains in control for " + int(row[0] + row[1] - time()) + " seconds...")
+                        print("controllerID " + str(row[3]) + " remains in control for " + str  (row[0] + row[1] - time()) + " seconds...")
                         controlledBy = row[3]
                         discoveringInvalidItems = False
                         break
