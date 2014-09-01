@@ -121,19 +121,15 @@ def getTrueQueuePosition(controllerID):
     # We need to check the queue of valid items at the maximum priority level, and all these below it. Group the
     # priority levels and descend them to estimate how long it will be.
     for r in c.execute(queries.GET_PRIORITY_LEVELS):
-        print("!!!! Outer estimate loop")
         for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': r[0]}):
             # These are ordered with the highest priority first. Check the times until we find a valid item.
             estimate += 1
-            print("Inner estimate loop")
 
             # Need to count everything at each descending priority until we find our controllerID.
-            print(" COMPARE " + str(row[3]) + " to provided " + str(controllerID))
 
             if row[3] == controllerID:
                 # Done!
                 fountain.db_close(con)
-                log("Determined estimate of " + str(estimate))
                 return estimate  # We'll fall out of the loop due to closing the database on top of the iterator.
 
     fountain.db_close(con)
