@@ -20,6 +20,7 @@ def backgroundProcessing():
     # existing queries to finish!
 
     tablesChecked = False
+    controlledBy = -1  # The current controllerID which should be allowed to control the fountain. -1 if in patterns.
 
     # Main background processing loop.
     while True:
@@ -93,20 +94,19 @@ def backgroundProcessing():
         c.execute(queries.FIND_MAX_PRIORITY_IN_QUEUE)
         max = c.fetchone()[0]
 
-        queueEmpty = False
         if max is None:
             # Nothing's in the queue!
-            queueEmpty = True
+            controlledBy = -1
 
         # See if there's a 0th-position item in this queue. If so, check the time to make sure it's still valid. If it's
         # not, or there is no such item, go through the rest of this queue until we find a valid record to set as the
         # new controller. If we can't find one (because we run out or a bunch of TTL = 0 records exist), drop down to the
         # next priority level and start from there (i.e. re-call the max priority finding query). If we have run out of
-        # control requests completely, set queueEmpty to True so the defailt patterns can engage.
+        # control requests completely, set controlledBy to -1 so the defailt patterns can engage.
         discoveringInvalidItems = True  # At first glance seems unnecessary, but there could be junk records (TTL = 0)
-        while discoveringInvalidItems and not queueEmpty:
+        while discoveringInvalidItems and controlledBy != -1:
             # During this loop, we might have to drop down a priority level. We might even run out of valid items
-            # entirely - in which case we'll need to set queueEmpty to true.
+            # entirely - in which case we'll need to set controlledBy to -1.
 
             # We need to check the queue of valid items at the maximum priority level.
             for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': max}):
@@ -122,7 +122,9 @@ def backgroundProcessing():
                 if row[2] == 0:
                     # Currently in control, check its validity.
                     if row[0] + row[1] > time():
-                        # Still valid
+                        # Still valid, set this to be the controller
+                        print("controllerID " + str(row[3]) + " remains in control.")
+                        controlledBy = row[3]
                         discoveringInvalidItems = False
                         break
                     else:
@@ -144,6 +146,7 @@ def backgroundProcessing():
 
                     # This item needs to be promoted to the front of the queue.
                     c.execute(queries.SET_QUEUE_POSITION, {'controllerID': row[3], 'queuePosition': 0})
+                    print("New controllerID in control: " + str(row[3]))
                     discoveringInvalidItems = False
                     break
 
@@ -155,10 +158,11 @@ def backgroundProcessing():
 
             if max is None:
                 # Nothing's in the queue!
-                queueEmpty = True
+                print("Queue is empty, returning control to patterns.")
+                controlledBy = -1
 
         # Advance patterns if nothing else is in control.
-        if queueEmpty:
+        if controlledBy == -1:
             # Default patterns should be able to run here
             print('Resume or start pattern due to lack of other control')
             # TODO: pattern stuff
