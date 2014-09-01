@@ -102,9 +102,31 @@ def jsonRows(cursor):
 
 def getTrueQueuePosition(controllerID):
     """Taking into account priority and acquisition time, determines the true queue position"""
-    # TODO: Figure out this priority-based logic... Basically need to sum up all the queue positions above us in priority
-    return -1
+    estimate = -1
+    print("Estimating queue position for cID " + str(controllerID))
 
+    # This will look very similar to the code in the background processing script, but here we'll be counting how many
+    # controllerIDs are ahead of us.
+    con = fountain.db_connect()
+    c = con.cursor()
+
+    # We need to check the queue of valid items at the maximum priority level, and all these below it. Group the
+    # priority levels and descend them to estimate how long it will be.
+    for r in c.execute(queries.GET_PRIORITY_LEVELS):
+        for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': r[0]}):
+            # These are ordered with the highest priority first. Check the times until we find a valid item.
+            estimate += 1
+
+            # Need to count everything at each descending priority until we find our controllerID.
+            if row[3] == controllerID:
+                # Done!
+                fountain.db_close(con)
+                print("Determined estimate of " + str(estimate))
+                return estimate
+
+    print("Fell out of loop with estimate of " + str(estimate))
+    fountain.db_close(con)
+    return estimate
 
 # ######################################################################################################################
 # Authentication and Control
@@ -252,6 +274,9 @@ def pValvesID(id):
 
     con = fountain.db_connect()
     c = con.cursor()
+
+    # TODO: check control
+
     c.execute(queries.SET_VALVE, {'spraying': request.json['spraying'], 'id': id})
     fountain.db_close(con)
 

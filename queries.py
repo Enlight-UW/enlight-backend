@@ -309,3 +309,11 @@ GET_QUEUE_AT_PRIORITY = """
     ORDER BY queuePosition ASC
 """
 
+
+GET_PRIORITY_LEVELS = """
+    SELECT priority
+    FROM controlQueue
+    WHERE queuePosition > -1
+    GROUP BY priority
+    ORDER BY priority DESC
+"""
