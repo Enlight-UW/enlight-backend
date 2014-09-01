@@ -242,7 +242,7 @@ def pValves():
     if not 'bitmask' in request.json.keys():
         return {'success': 'false', 'message': 'Must specify bitmask to set valves.'}
 
-    bm = request.json['bitmask']  # Store bitmask so we can shift it around while reading out the valve states
+    bm = int(request.json['bitmask'])  # Store bitmask so we can shift it around while reading out the valve states
     con = fountain.db_connect()
     c = con.cursor()
 
@@ -289,7 +289,7 @@ def pValvesID(id):
 
     # TODO: check control
 
-    c.execute(queries.SET_VALVE, {'spraying': request.json['spraying'], 'id': id})
+    c.execute(queries.SET_VALVE, {'spraying': int(request.json['spraying']), 'id': id})
     fountain.db_close(con)
 
     return {'success': 'true'}
