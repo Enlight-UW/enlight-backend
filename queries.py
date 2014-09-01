@@ -305,7 +305,7 @@ FIND_MAX_PRIORITY_IN_QUEUE = """
 GET_QUEUE_AT_PRIORITY = """
     SELECT acquire, ttl, queuePosition, controllerID
     FROM controlQueue
-    WHERE queuePosition > -1 AND priority=:priority
+    WHERE queuePosition > -2 AND priority=:priority
     ORDER BY queuePosition ASC
 """
 
