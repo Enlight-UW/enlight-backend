@@ -122,10 +122,12 @@ def getTrueQueuePosition(controllerID):
     # We need to check the queue of valid items at the maximum priority level, and all these below it. Group the
     # priority levels and descend them to estimate how long it will be.
     for r in c.execute(queries.GET_PRIORITY_LEVELS):
+        print("!!!! Outer estimate loop")
         for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': r[0]}):
             # These are ordered with the highest priority first. Check the times until we find a valid item.
             estimate += 1
-
+            print("Inner estimate loop")
+            
             # Need to count everything at each descending priority until we find our controllerID.
             if row[3] == controllerID:
                 # Done!
