@@ -15,7 +15,6 @@ def error404(error):
 @post('/api')
 def gDefaultResponse():
     """The default route for the API; returns the version number."""
-    getAPIKeyPriority()
     return {'success': 'true', 'apiVersion': '1B'}
 
 
