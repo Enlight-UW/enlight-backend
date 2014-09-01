@@ -120,20 +120,29 @@ def getTrueQueuePosition(controllerID):
         fountain.db_close(con)
         return -2
 
+
+    c.execute("SELECT queuePosition FROM controlQueue WHERE controllerID=:controllerID", {'controllerID': controllerID})
+    r = c.fetchone()
+    n = r[0]
+    fountain.db_close(con)
+
+    return n
+
     # We need to check the queue of valid items at the maximum priority level, and all these below it. Group the
     # priority levels and descend them to estimate how long it will be.
-    for r in c.execute(queries.GET_PRIORITY_LEVELS):
-        for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': r[0]}):
-            # These are ordered with the highest priority first. Check until we find us.
-            if row[3] != controllerID:
-                estimate += 1
-            else:
-                # Done!
-                fountain.db_close(con)
-                return estimate  # We'll fall out of the loop due to closing the database on top of the iterator.
-
-    fountain.db_close(con)
-    return estimate  # Don't change
+    # for r in c.execute(queries.GET_PRIORITY_LEVELS):
+    #     for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': r[0]}):
+    #         # These are ordered with the highest priority first. Check until we find us.
+    #         if row[3] != controllerID:
+    #             print(" incrementing priority")
+    #             estimate += 1
+    #         else:
+    #             # Done!
+    #             fountain.db_close(con)
+    #             return estimate  # We'll fall out of the loop due to closing the database on top of the iterator.
+    #
+    # fountain.db_close(con)
+    # return estimate  # Don't change
 
 # ######################################################################################################################
 # Authentication and Control
