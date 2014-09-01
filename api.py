@@ -32,8 +32,6 @@ def checkAPIKey():
         log('No API key with request.')
         return False
 
-    log("Checking API key: " + request.json['apikey'])
-
     con = fountain.db_connect()
     c = con.cursor()
     c.execute(queries.QUERY_API_KEY_COUNT, {'key': request.json['apikey']})
@@ -44,10 +42,6 @@ def checkAPIKey():
     isValid = True if r[0] == 1 else False
     fountain.db_close(con)
 
-    if (isValid):
-        log("API key is valid.")
-    else:
-        log("Invalid API key.")
     return isValid
 
 
@@ -111,7 +105,6 @@ def jsonRows(cursor):
 def getTrueQueuePosition(controllerID):
     """Taking into account priority and acquisition time, determines the true queue position"""
     estimate = -1
-    log("Estimating queue position for cID " + str(controllerID))
 
     # This will look very similar to the code in the background processing script, but here we'll be counting how many
     # controllerIDs are ahead of us.

@@ -159,14 +159,14 @@ def backgroundProcessing():
 
             if max is None:
                 # Nothing's in the queue!
-                print("Queue is empty, letting the patterns run...")
+                print("Queue empty...")
                 controlledBy = -1
                 discoveringInvalidItems = False
 
         # Advance patterns if nothing else is in control.
         if controlledBy == -1:
             # Default patterns should be able to run here
-            print('... increment pattern due to lack of other control')
+            print('... pattern tick.')
             # TODO: pattern stuff
 
         # TODO: Send valve data to cRIO
