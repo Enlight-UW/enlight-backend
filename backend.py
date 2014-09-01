@@ -162,6 +162,7 @@ def backgroundProcessing():
                 # Nothing's in the queue!
                 print("Queue is empty, returning control to patterns.")
                 controlledBy = -1
+                discoveringInvalidItems = False
 
         # Advance patterns if nothing else is in control.
         if controlledBy == -1:
