@@ -133,9 +133,9 @@ def getTrueQueuePosition(controllerID):
                 log("Determined estimate of " + str(estimate))
                 return estimate
 
-    log("Fell out of loop with estimate of " + str(estimate))
+    log("Fell out of loop, not in the queue.")
     fountain.db_close(con)
-    return estimate
+    return -1
 
 # ######################################################################################################################
 # Authentication and Control
