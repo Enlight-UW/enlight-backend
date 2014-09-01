@@ -113,7 +113,7 @@ def getTrueQueuePosition(controllerID):
 
     # Check if we're even in the queue. If not, don't return anything.
     r = c.execute(queries.CHECK_IF_IM_IN_THE_QUEUE, {'controllerID': controllerID})
-    if (r[0] == 0)
+    if r[0] == 0:
         print ("Not even in the queue...")
         fountain.db_close(con)
         return 0
