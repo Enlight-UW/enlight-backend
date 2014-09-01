@@ -106,7 +106,7 @@ def backgroundProcessing():
         # next priority level and start from there (i.e. re-call the max priority finding query). If we have run out of
         # control requests completely, set controlledBy to -1 so the defailt patterns can engage.
         discoveringInvalidItems = True  # At first glance seems unnecessary, but there could be junk records (TTL = 0)
-        while discoveringInvalidItems and controlledBy != -1:
+        while discoveringInvalidItems:
             # During this loop, we might have to drop down a priority level. We might even run out of valid items
             # entirely - in which case we'll need to set controlledBy to -1.
             print("!!! IN LOOP")
