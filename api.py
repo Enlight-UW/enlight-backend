@@ -130,16 +130,15 @@ def getTrueQueuePosition(controllerID):
 
             # Need to count everything at each descending priority until we find our controllerID.
             print(" COMPARE " + str(row[3]) + " to provided " + str(controllerID))
-            
+
             if row[3] == controllerID:
                 # Done!
                 fountain.db_close(con)
                 log("Determined estimate of " + str(estimate))
-                return estimate
+                return estimate  # We'll fall out of the loop due to closing the database on top of the iterator.
 
-    log("Fell out of loop, not in the queue.")
     fountain.db_close(con)
-    return -1
+    return estimate  # Don't change
 
 # ######################################################################################################################
 # Authentication and Control
