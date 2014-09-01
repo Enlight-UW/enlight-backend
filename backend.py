@@ -97,6 +97,7 @@ def backgroundProcessing():
 
         if max is None:
             # Nothing's in the queue!
+            print("!!!MAX IS NONE")
             controlledBy = -1
 
         # See if there's a 0th-position item in this queue. If so, check the time to make sure it's still valid. If it's
