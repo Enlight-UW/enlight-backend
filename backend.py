@@ -121,7 +121,7 @@ def backgroundProcessing():
                 # waiting in the queue whose owners have released control (given up on) and their TTLs will be 0.
                 if row[2] == 0:
                     # Currently in control, check its validity.
-                    if row[0] + row[1] > time.time():
+                    if row[0] + row[1] > time():
                         # Still valid
                         discoveringInvalidItems = False
                         break
@@ -164,6 +164,8 @@ def backgroundProcessing():
             # TODO: pattern stuff
 
         # TODO: Send valve data to cRIO
+
+        # Will need state tracking here as well as raw udp stuff
 
         fountain.db_close(con)
 

@@ -3,9 +3,6 @@ import fountain
 import queries
 import constants
 
-# This is the database lock which we'll share with the background process.
-dbmtx = None
-
 # ######################################################################################################################
 # Defaults and Errors
 # ######################################################################################################################
