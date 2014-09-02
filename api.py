@@ -111,7 +111,7 @@ def getTrueEta(controllerID):
 
     for row in c.execute(queries.QUERY_CONTROL_QUEUE):
         print("checking eta on controller id " + str(controllerID))
-        if row[0] != controllerID:
+        if int(row[0]) != int(controllerID):
             print("it's not " + str(row[0]))
             continue
 
