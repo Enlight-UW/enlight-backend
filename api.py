@@ -110,14 +110,19 @@ def getTrueEta(controllerID):
     ret = -2
 
     for row in c.execute(queries.QUERY_CONTROL_QUEUE):
+        print("checking eta on controller id " + str(controllerID))
         if row[0] != controllerID:
+            print("it's not " + str(row[0]))
             continue
 
         if row[1] > 0:
+            print("ok, we're estimating")
             ret = row[1] + row[2] - time()
             break
         else:
             ret = 0
+
+    fountain.db_close(con)
 
     return ret
 
