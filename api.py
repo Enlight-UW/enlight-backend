@@ -110,13 +110,10 @@ def getTrueEta(controllerID):
     ret = -2
 
     for row in c.execute(queries.QUERY_CONTROL_QUEUE):
-        print("checking eta on controller id " + str(controllerID))
         if int(row[0]) != int(controllerID):
-            print("it's not " + str(row[0]))
             continue
 
         if row[1] > 0:
-            print("ok, we're estimating")
             ret = row[1] + row[2] - time()
             break
         else:
@@ -157,7 +154,7 @@ def getTrueQueuePosition(controllerID):
     # for r in c.execute(queries.GET_PRIORITY_LEVELS):
     #     for row in c.execute(queries.GET_QUEUE_AT_PRIORITY, {'priority': r[0]}):
     #         # These are ordered with the highest priority first. Check until we find us.
-    #         if row[3] != controllerID:
+    #         if int(row[3]) != int(controllerID):
     #             print(" incrementing priority")
     #             estimate += 1
     #         else:
