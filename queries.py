@@ -226,6 +226,7 @@ RELEASE_CONTROL = """
 QUERY_VALVES = """
     SELECT ID, name, description, spraying, enabled
     FROM valves
+    ORDER BY ID ASC
 """
 
 # Query a singular valve.

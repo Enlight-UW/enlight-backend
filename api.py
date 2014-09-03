@@ -379,4 +379,4 @@ def gDBPop():
 def startAPI():
     """Starts the server API."""
     print("API hook started...")
-    run(host='enlight.club', port=8082, quiet=True)
+    run(host='localhost', port=8082, quiet=True)

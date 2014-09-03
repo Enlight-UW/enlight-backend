@@ -1,11 +1,12 @@
+from multiprocessing import Process
+from time import sleep, time
+
 import constants
 import fountain
-
 import queries
-import sys
-from multiprocessing import Process
 from api import startAPI
-from time import sleep, time
+import socket
+import struct
 
 
 def backgroundProcessing():
@@ -171,8 +172,23 @@ def backgroundProcessing():
             print('... pattern tick.')
             # TODO: pattern stuff
 
-        # TODO: Send valve data to cRIO
+        # Query the state of the fountain from the database...
+        state = 0
+        idx = 0
+        for row in c.execute(queries.QUERY_VALVES):
+            # TODO: Might need to make sure the valves in this bitmask correspond to what the cRIO knows.
+            state |= int(row[3]) << idx
+            idx += 1
+        print("Current state is: " + str(state))
 
+        # ...and send it to the fountain.
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #  UDP socket
+        horizontals = (((state >> 20) & 15) << 8) | ((state >> 12) & 255)
+        verticals = (((state >> 8) & 15) << 8) | (state & 255)
+        payload = struct.pack(">HH", horizontals, verticals)
+        payload = b'\x01' + payload  # Add opcode byte
+        sock.sendto(payload, ("127.0.0.1", 80))
+        print(payload)
         # Will need state tracking here as well as raw udp stuff
 
         fountain.db_close(con)
