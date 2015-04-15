@@ -1,4 +1,4 @@
-from bottle import error, get, post, run, request
+from bottle import error, get, post, run, request, route, redirect
 import fountain
 import queries
 import constants
@@ -12,7 +12,19 @@ from time import time
 def error404(error):
     return "404"
 
+# Blog not here
+@route('/blog')
+def gtfo():
+    redirect("http://enlight.club")
 
+@route('/blog/')
+def gtfo3():
+    redirect("http://enlight.club")
+    
+@route('/')
+def gtfo2():
+    redirect("http://enlight.club")
+    
 @post('/api')
 def gDefaultResponse():
     """The default route for the API; returns the version number."""
@@ -137,7 +149,7 @@ def getTrueQueuePosition(controllerID):
     r = c.fetchone()
 
     if r[0] == 0:
-        print ("Not even in the queue...")
+        print ("Not even in the queue... Controller ID is in position 0 already: " + str(controllerID))
         fountain.db_close(con)
         return -2
 
@@ -379,4 +391,4 @@ def gDBPop():
 def startAPI():
     """Starts the server API."""
     print("API hook started...")
-    run(host='localhost', port=8082, quiet=True)
+    run(host='enlight-server2', port=80, quiet=True)

@@ -7,14 +7,18 @@ import queries
 from api import startAPI
 import socket
 import struct
+from datetime import datetime
 
+
+
+defaultPattern = [16, 0, 68, 0, 69632, 0, 278528, 0, 34, 0, 557056, 0, 136, 0, 139264, 0, 768, 0, 3145728, 0, 256, 0, 1052672, 0, 514, 0, 2105344, 0, 4096, 0, 65552, 0, 16388, 0, 262208, 0, 8194, 0, 131104, 0, 32776, 0, 524416]
 
 def backgroundProcessing():
     """
     This method is called to initiate the background processing of the fountain, which includes advancing the control
     queue, running the patterns, and sending the current state to the cRIO.
     """
-
+    patternTick = 0
     # Now supposedly, SQLite3 Python bindings allow for this kind of multithreading without any special locking/mutex
     # effort on our part, as long as we don't re-use the same connection object across different threads. That is, the
     # following should be entirely thread-safe ("process" safe), and any modifying queries will automagically wait on
@@ -166,20 +170,42 @@ def backgroundProcessing():
                 controlledBy = -1
                 discoveringInvalidItems = False
 
+            
+        if patternTick is None:
+            patternTick = 0
         # Advance patterns if nothing else is in control.
         if controlledBy == -1:
             # Default patterns should be able to run here
+            if patternTick >= len(defaultPattern) - 1:
+                patternTick = 0
+            else:
+                patternTick += 1
+            
             print('... pattern tick.')
-            # TODO: pattern stuff
+            
+            # TODO: make patterns update in database so users can query
 
+        isNightTime = False
+        dt = datetime.now()
+        if dt.hour < 6 or dt.hour >= 19:
+            isNightTime = True
+            print("It's nighttime hour " + str(dt.hour))
+        else:
+            print("It's daytime hour " + str(dt.hour))
+            
         # Query the state of the fountain from the database...
         state = 0
         idx = 0
-        for row in c.execute(queries.QUERY_VALVES):
-            # TODO: Might need to make sure the valves in this bitmask correspond to what the cRIO knows.
-            state |= int(row[3]) << idx
-            idx += 1
-        print("Current state is: " + str(state))
+        if controlledBy == -1:
+            state = defaultPattern[patternTick]
+            if isNightTime:
+                state = 0
+        else:
+            for row in c.execute(queries.QUERY_VALVES):
+                # TODO: Might need to make sure the valves in this bitmask correspond to what the cRIO knows.
+                state |= int(row[3]) << idx
+                idx += 1
+            print("Current state is: " + str(state))
 
         # ...and send it to the fountain.
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #  UDP socket
@@ -187,7 +213,7 @@ def backgroundProcessing():
         verticals = (((state >> 8) & 15) << 8) | (state & 255)
         payload = struct.pack(">HH", horizontals, verticals)
         payload = b'\x01' + payload  # Add opcode byte
-        sock.sendto(payload, ("127.0.0.1", 80))
+        sock.sendto(payload, ("128.104.196.80", 30096))
         print(payload)
         # Will need state tracking here as well as raw udp stuff
 
