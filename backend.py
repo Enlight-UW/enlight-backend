@@ -11,7 +11,9 @@ from datetime import datetime
 
 
 
-defaultPattern = [16, 0, 68, 0, 69632, 0, 278528, 0, 34, 0, 557056, 0, 136, 0, 139264, 0, 768, 0, 3145728, 0, 256, 0, 1052672, 0, 514, 0, 2105344, 0, 4096, 0, 65552, 0, 16388, 0, 262208, 0, 8194, 0, 131104, 0, 32776, 0, 524416]
+defaultPattern = [16, 0, 68, 0, 69632, 0, 278528, 0, 34, 0, 557056, 0, 136, 0, 139264, 0, 768, 0, 3145728, 0, 256, 0,
+                  1052672, 0, 514, 0, 2105344, 0, 4096, 0, 65552, 0, 16388, 0, 262208, 0, 8194, 0, 131104, 0, 32776, 0,
+                  524416]
 
 def backgroundProcessing():
     """
@@ -182,8 +184,7 @@ def backgroundProcessing():
                 patternTick += 1
             
             print('... pattern tick.')
-            
-            # TODO: make patterns update in database so users can query
+
 
         isNightTime = False
         dt = datetime.now()
@@ -215,7 +216,9 @@ def backgroundProcessing():
         payload = b'\x01' + payload  # Add opcode byte
         sock.sendto(payload, ("128.104.196.80", 30096))
         print(payload)
-        # Will need state tracking here as well as raw udp stuff
+
+        # TODO: make patterns update in database so users can query
+        
 
         fountain.db_close(con)
 
